@@ -208,10 +208,11 @@ export const ALL_SERVER_CATEGORY_IDS: readonly ServerCategoryDefinition['id'][] 
 
 /**
  * Conservative SQL shape: SELECT … FROM, INSERT INTO, UPDATE … SET, etc.
- * Avoids flagging English "select a winner" / "update the UI".
+ * Avoids flagging English "select a winner" / "update the UI", and Tailwind
+ * `truncate …` class lists (TRUNCATE requires the TABLE keyword).
  */
 export const DEFAULT_SQL_PATTERN =
-  '^\\s*(?:WITH\\s+[\\s\\S]+?\\s+)?(?:SELECT\\s+[\\s\\S]+?\\s+FROM|INSERT\\s+INTO|UPDATE\\s+\\S+\\s+SET|DELETE\\s+FROM|CREATE\\s+(?:TABLE|INDEX|DATABASE|SCHEMA)|ALTER\\s+TABLE|DROP\\s+(?:TABLE|INDEX|DATABASE)|TRUNCATE\\s+(?:TABLE\\s+)?|EXPLAIN\\s+SELECT)';
+  '^\\s*(?:WITH\\s+[\\s\\S]+?\\s+)?(?:SELECT\\s+[\\s\\S]+?\\s+FROM|INSERT\\s+INTO|UPDATE\\s+\\S+\\s+SET|DELETE\\s+FROM|CREATE\\s+(?:TABLE|INDEX|DATABASE|SCHEMA)|ALTER\\s+TABLE|DROP\\s+(?:TABLE|INDEX|DATABASE)|TRUNCATE\\s+TABLE(?![\\w-])|EXPLAIN\\s+SELECT)';
 
 /**
  * Embedded / file-backed stores agents reach for when pg/prisma are blocked.

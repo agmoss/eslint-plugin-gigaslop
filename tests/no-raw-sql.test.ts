@@ -15,6 +15,9 @@ test('no-raw-sql', () => {
       "const label = 'select a winner';",
       "const copy = 'update the UI after save';",
       "const msg = 'delete this comment';",
+      "const cls = 'truncate text-sm font-medium text-white';",
+      "const cls = 'truncate text-xs text-[#78716C]';",
+      "const cls = 'truncate table-auto';",
       'const html = css`color: red;`;',
       {
         code: "const q = 'SELECT * FROM users';",
@@ -28,6 +31,10 @@ test('no-raw-sql', () => {
       },
       {
         code: "const q = 'INSERT INTO widgets (name) VALUES ($1)';",
+        errors: [{ messageId: 'blockedSqlLiteral' }],
+      },
+      {
+        code: "const q = 'TRUNCATE TABLE users';",
         errors: [{ messageId: 'blockedSqlLiteral' }],
       },
       {

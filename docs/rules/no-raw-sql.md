@@ -9,7 +9,7 @@ This rule is included in `recommended` and `recommended-legacy` at `"error"`.
 Two checks:
 
 1. **Tagged templates** whose tag is `sql`, `SQL`, or `obj.sql` / `Bun.sql` (any content).
-2. **Untagged** string literals and templates that match a conservative SQL shape: `SELECT … FROM`, `INSERT INTO`, `UPDATE … SET`, `DELETE FROM`, `CREATE TABLE`, `ALTER TABLE`, `DROP TABLE`, `TRUNCATE`, `EXPLAIN SELECT`, optional leading `WITH`.
+2. **Untagged** string literals and templates that match a conservative SQL shape: `SELECT … FROM`, `INSERT INTO`, `UPDATE … SET`, `DELETE FROM`, `CREATE TABLE`, `ALTER TABLE`, `DROP TABLE`, `TRUNCATE TABLE`, `EXPLAIN SELECT`, optional leading `WITH`.
 
 English phrases like "select a winner" or "update the UI" are not flagged.
 
@@ -30,6 +30,7 @@ Examples of **correct** code:
 
 const label = 'select a winner';
 const copy = 'update the UI after save';
+const cls = 'truncate text-sm font-medium';
 ```
 
 ## Options
