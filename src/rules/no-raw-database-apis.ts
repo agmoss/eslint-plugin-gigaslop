@@ -41,8 +41,16 @@ export const noRawDatabaseApis = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
-          additionalConstructors: { type: 'array', items: { type: 'string' }, uniqueItems: true },
-          additionalCalls: { type: 'array', items: { type: 'string' }, uniqueItems: true },
+          additionalConstructors: {
+            type: 'array',
+            items: { type: 'string' },
+            uniqueItems: true,
+          },
+          additionalCalls: {
+            type: 'array',
+            items: { type: 'string' },
+            uniqueItems: true,
+          },
         },
         additionalProperties: false,
       },
@@ -50,14 +58,20 @@ export const noRawDatabaseApis = createRule<RuleOptions, MessageIds>({
   },
   defaultOptions: [{}],
   create(context, [options]) {
-    const constructors = new Set(DEFAULT_CONSTRUCTORS.concat(options.additionalConstructors ?? []));
+    const constructors = new Set(
+      DEFAULT_CONSTRUCTORS.concat(options.additionalConstructors ?? []),
+    );
     const calls = new Set(DEFAULT_CALLS.concat(options.additionalCalls ?? []));
 
     return {
       NewExpression(node) {
         const name = getIdentifierName(node.callee);
         if (name && constructors.has(name)) {
-          context.report({ node, messageId: 'blockedConstructor', data: { name } });
+          context.report({
+            node,
+            messageId: 'blockedConstructor',
+            data: { name },
+          });
         }
       },
       CallExpression(node) {
@@ -65,14 +79,24 @@ export const noRawDatabaseApis = createRule<RuleOptions, MessageIds>({
 
         if (callee.type === AST_NODE_TYPES.Identifier) {
           if (calls.has(callee.name)) {
-            context.report({ node, messageId: 'blockedCall', data: { name: callee.name } });
+            context.report({
+              node,
+              messageId: 'blockedCall',
+              data: { name: callee.name },
+            });
           }
           return;
         }
 
-        if (callee.type === AST_NODE_TYPES.MemberExpression && !callee.computed) {
+        if (
+          callee.type === AST_NODE_TYPES.MemberExpression &&
+          !callee.computed
+        ) {
           const objectName = getIdentifierName(callee.object);
-          const propertyName = callee.property.type === AST_NODE_TYPES.Identifier ? callee.property.name : null;
+          const propertyName =
+            callee.property.type === AST_NODE_TYPES.Identifier
+              ? callee.property.name
+              : null;
           if (!propertyName) return;
 
           if (objectName === 'MongoClient' && propertyName === 'connect') {
@@ -81,7 +105,11 @@ export const noRawDatabaseApis = createRule<RuleOptions, MessageIds>({
           }
 
           if (calls.has(propertyName)) {
-            context.report({ node, messageId: 'blockedCall', data: { name: propertyName } });
+            context.report({
+              node,
+              messageId: 'blockedCall',
+              data: { name: propertyName },
+            });
           }
         }
       },

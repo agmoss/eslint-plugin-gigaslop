@@ -31,7 +31,9 @@ function taggedName(tag: TSESTree.Expression): string | null {
 }
 
 function templateLiteralValue(node: TSESTree.TemplateLiteral): string {
-  return node.quasis.map((quasi) => quasi.value.cooked ?? quasi.value.raw).join(' ');
+  return node.quasis
+    .map((quasi) => quasi.value.cooked ?? quasi.value.raw)
+    .join(' ');
 }
 
 export const noRawSql = createRule<RuleOptions, MessageIds>({
@@ -44,7 +46,7 @@ export const noRawSql = createRule<RuleOptions, MessageIds>({
     },
     messages: {
       blockedSqlLiteral:
-        'This string looks like SQL. This app may only call the project\'s existing HTTP APIs — do not query a database directly.',
+        "This string looks like SQL. This app may only call the project's existing HTTP APIs — do not query a database directly.",
       blockedSqlTag:
         "'{{name}}`...`' is a SQL tagged template. This app may only call the project's existing HTTP APIs.",
     },
@@ -52,7 +54,11 @@ export const noRawSql = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
-          additionalTags: { type: 'array', items: { type: 'string' }, uniqueItems: true },
+          additionalTags: {
+            type: 'array',
+            items: { type: 'string' },
+            uniqueItems: true,
+          },
           checkLiterals: { type: 'boolean' },
         },
         additionalProperties: false,
@@ -74,14 +80,18 @@ export const noRawSql = createRule<RuleOptions, MessageIds>({
       },
       Literal(node) {
         if (!checkLiterals) return;
-        if (typeof node.value === 'string' && looksLikeSql(node.value, sqlPattern)) {
+        if (
+          typeof node.value === 'string' &&
+          looksLikeSql(node.value, sqlPattern)
+        ) {
           context.report({ node, messageId: 'blockedSqlLiteral' });
         }
       },
       TemplateLiteral(node) {
         if (!checkLiterals) return;
         // Parent tagged templates are handled above; skip the inner template.
-        if (node.parent?.type === AST_NODE_TYPES.TaggedTemplateExpression) return;
+        if (node.parent?.type === AST_NODE_TYPES.TaggedTemplateExpression)
+          return;
         if (looksLikeSql(templateLiteralValue(node), sqlPattern)) {
           context.report({ node, messageId: 'blockedSqlLiteral' });
         }

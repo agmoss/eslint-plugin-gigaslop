@@ -1,19 +1,19 @@
 # eslint-plugin-gigaslop
 
-`gigaslop` (noun) A large, fundamentally disastarous level of slop.
+`gigaslop` (noun) A large, fundamentally disastrous level of slop.
 
 For the case where AI coding agents reach for `pg`/`prisma`/`@supabase/supabase-js`
 etc. as a shortcut instead of calling the existing API layer.
 
 ## Why?
 
-In large enterprise apps, there is often a dedicated API/data layer serving CRUD functionality of the frontend(s). Agents love ignoring this in favor of their own creations. Often, this manifests itself as direct database access for CRUD as well as schema modififictions and migrations. This additional data layer is a dangerous liability.
+In large enterprise apps, there is often a dedicated API/data layer serving CRUD functionality of the frontend(s). Agents love ignoring this in favor of their own creations. Often, this manifests itself as direct database access for CRUD as well as schema modifications and migrations. This additional data layer is a dangerous liability.
 
-Agents default to “put a database client in the frontend app” because that is how most tutorials and starters are written. It is also the simplest way to achieve the goal of the prompt. It is challenging to get an agent to prioritize organizational structure over a brute force quick win.
+Agents default to “put a database client in the frontend app” because that is how most tutorials and starters are written. It is also the simplest way to achieve the goal of the prompt. It is challenging to get an agent to prioritize organizational structure over a brute-force quick win.
 
-This is not a matter of syntactical preference or design philosophy. In a data intensive API driven app, the circumvention of the dedicated API layer is fundamental flaw that, if introduced, is both painful and immediatly necessary to unwind.
+This is not a matter of syntactical preference or design philosophy. In a data-intensive, API-driven app, circumventing the dedicated API layer is a fundamental flaw that, if introduced, is both painful and immediately necessary to unwind.
 
-This eslint plugin aims to thwart the introduction of this pattern. It contains rules for finding common agent (or human tbh) inclusions of database access outside of the approved API layer. When used in conjunction with a pre-build or pre-commit hook, it can block the introduction of this pattern before reaching production.
+This ESlint plugin aims to thwart the introduction of this pattern. It includes rules to find common agent (or human tbh) inclusions of database access outside the approved API layer. When used with a pre-build or pre-commit hook, it can block this pattern before it reaches production.
 
 This is particularly useful when the front end outcomes are driven by product teams using agent tools.
 
@@ -40,13 +40,13 @@ Do not add DATABASE_URL, prisma/schema.prisma, or drizzle.config.ts.
 Do not create a new database layer in this client side app.
 ```
 
-I have found that this and other architectural non negotiables are valuable to include in your `agents.md` file. However, these are just guides. They can be prompted over and ignored. Linting is **structural** and unopinionated, its results are deterministic and cause error codes.
+I have found that this and other architectural non-negotiables are valuable to include in your `agents.md` file. However, these are just guides. They can be prompted over and ignored. Linting is **structural** and unopinionated, its results are deterministic and cause error codes.
 
 ## Downsides
 
 Yes, you or an agent can just uninstall this package or use lint ignores to ignore the rules. There is no surefire way around that. IMO when using this package you must remain diligent to scan for that. Again, IMO, this is easier to scan for than scanning for the numerous ways a new API layer can get introduced into your app.
 
-What you could do is use this package outside the agent context. That or use a system/script outside of the agent context that enforces its proper use.
+You could use this package outside the agent context. That, or use a system/script outside of the agent context that enforces its proper use.
 
 ## Install
 
@@ -266,17 +266,9 @@ npm run format:md   # markdownlint --fix
 
 Published to npm as [`eslint-plugin-gigaslop`](https://www.npmjs.com/package/eslint-plugin-gigaslop).
 
-`package.json` `"files"` is `["dist"]`. npm always adds `package.json` and `README.md` (and `LICENSE` if you add one). `dist/` is gitignored; `prepublishOnly` runs `npm run build` so the tarball still contains the compiled plugin.
-
 ### Versioning
 
-Follow [semver](https://semver.org/). This package is `0.3.0`: until `1.0.0`, breaking changes may ship in a minor bump.
-
-| Bump      | Use when                                                                         |
-| --------- | -------------------------------------------------------------------------------- |
-| **patch** | bug fix, docs, or a blocklist addition that only flags new packages/patterns     |
-| **minor** | new rule, new option, or a non-breaking recommended-config addition              |
-| **major** | removing a rule, changing recommended defaults, or dropping an ESLint/Node range |
+Follow [semver](https://semver.org/)
 
 Bump **both** of these — they are not wired together:
 
@@ -284,50 +276,15 @@ Bump **both** of these — they are not wired together:
 - `plugin.meta.version` in `src/index.ts`
 
 ```bash
-npm version patch    # 0.3.0 → 0.3.1
-npm version minor    # 0.3.0 → 0.4.0
-npm version major    # 0.3.0 → 1.0.0
+npm version patch
+npm version minor
+npm version major
 ```
-
-Never reuse a version that has already been published.
-
-### First publish
-
-1. Create an [npm](https://www.npmjs.com/signup) account and run `npm login`.
-2. Confirm the name is free: `npm view eslint-plugin-gigaslop` should 404.
-3. Dry-run (lists the tarball contents; does not upload):
-
-```bash
-npm test
-npm run typecheck
-npm publish --dry-run
-```
-
-You should see `dist/index.js`, `dist/index.cjs`, and `dist/index.d.ts` in the file list — not `src/` or `tests/`.
-
-4. Publish:
 
 ```bash
 npm publish
 ```
-
-The package is unscoped, so it is public by default. If the account has 2FA enabled:
-
-```bash
-npm publish --otp=123456
-```
-
-5. Push the git tag if you used `npm version`:
 
 ```bash
 git push && git push --tags
-```
-
-### Later releases
-
-```bash
-npm test && npm run typecheck
-# bump package.json + src/index.ts (see above)
-npm publish
-git push --follow-tags
 ```

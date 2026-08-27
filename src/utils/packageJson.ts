@@ -50,7 +50,9 @@ export function readPackageJsonDependencyNames(filename: string): string[] {
   if (!isPackageJsonFilename(filename)) return [];
 
   try {
-    const parsed = JSON.parse(readFileSync(filename, 'utf8')) as PackageJsonShape;
+    const parsed = JSON.parse(
+      readFileSync(filename, 'utf8'),
+    ) as PackageJsonShape;
     return dependencyNames(parsed);
   } catch {
     return [];

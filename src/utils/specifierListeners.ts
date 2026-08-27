@@ -1,7 +1,17 @@
-import { AST_NODE_TYPES, type TSESLint, type TSESTree } from '@typescript-eslint/utils';
+import {
+  AST_NODE_TYPES,
+  type TSESLint,
+  type TSESTree,
+} from '@typescript-eslint/utils';
 
-function literalStringValue(node: TSESTree.Node | null | undefined): string | null {
-  if (node && node.type === AST_NODE_TYPES.Literal && typeof node.value === 'string') {
+function literalStringValue(
+  node: TSESTree.Node | null | undefined,
+): string | null {
+  if (
+    node &&
+    node.type === AST_NODE_TYPES.Literal &&
+    typeof node.value === 'string'
+  ) {
     return node.value;
   }
   return null;
@@ -38,10 +48,15 @@ export function specifierListeners(
     },
     CallExpression(node) {
       const { callee } = node;
-      const firstArgValue = literalStringValue(node.arguments[0] as TSESTree.Node | undefined);
+      const firstArgValue = literalStringValue(
+        node.arguments[0] as TSESTree.Node | undefined,
+      );
       if (!firstArgValue) return;
 
-      if (callee.type === AST_NODE_TYPES.Identifier && callee.name === 'require') {
+      if (
+        callee.type === AST_NODE_TYPES.Identifier &&
+        callee.name === 'require'
+      ) {
         check(node, firstArgValue);
         return;
       }

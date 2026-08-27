@@ -13,7 +13,10 @@ test('no-database-config-files', () => {
   ruleTester.run('no-database-config-files', noDatabaseConfigFiles as any, {
     valid: [
       { code: 'export const config = {};', filename: 'app/config.ts' },
-      { code: 'export const config = {};', filename: 'src/db-client-config.ts' },
+      {
+        code: 'export const config = {};',
+        filename: 'src/db-client-config.ts',
+      },
     ],
     invalid: [
       {

@@ -4,7 +4,9 @@ import { fileURLToPath } from 'node:url';
 import { ESLint } from 'eslint';
 import plugin from '../src/index';
 
-const fixtureDir = fileURLToPath(new URL('./fixtures/next-unscoped-rules', import.meta.url));
+const fixtureDir = fileURLToPath(
+  new URL('./fixtures/next-unscoped-rules', import.meta.url),
+);
 
 /**
  * Stand-in for eslint-plugin-react-hooks: registered only for JS/TS, the way
@@ -16,7 +18,9 @@ const fakeReactHooks = {
     'some-rule': {
       meta: {
         type: 'suggestion',
-        docs: { description: 'noop stand-in for react-hooks/set-state-in-effect' },
+        docs: {
+          description: 'noop stand-in for react-hooks/set-state-in-effect',
+        },
         schema: [],
         messages: {},
       },
@@ -37,14 +41,22 @@ const fakeTypeScriptEslint = {
     'no-require-imports': {
       meta: {
         type: 'problem',
-        docs: { description: 'flag require() like @typescript-eslint/no-require-imports' },
+        docs: {
+          description:
+            'flag require() like @typescript-eslint/no-require-imports',
+        },
         schema: [],
         messages: { forbidden: 'require() is not allowed' },
       },
-      create(context: { report: (descriptor: { node: unknown; messageId: string }) => void }) {
+      create(context: {
+        report: (descriptor: { node: unknown; messageId: string }) => void;
+      }) {
         return {
           CallExpression(node: { callee: { type: string; name?: string } }) {
-            if (node.callee.type === 'Identifier' && node.callee.name === 'require') {
+            if (
+              node.callee.type === 'Identifier' &&
+              node.callee.name === 'require'
+            ) {
               context.report({ node, messageId: 'forbidden' });
             }
           },
@@ -77,29 +89,49 @@ function createFixtureLinter(overrideConfig: unknown): ESLint {
   });
 }
 
-function resultFor(results: ESLint.LintResult[], suffix: string): ESLint.LintResult | undefined {
-  return results.find((result) => result.filePath.replace(/\\/g, '/').endsWith(suffix));
+function resultFor(
+  results: ESLint.LintResult[],
+  suffix: string,
+): ESLint.LintResult | undefined {
+  return results.find((result) =>
+    result.filePath.replace(/\\/g, '/').endsWith(suffix),
+  );
 }
 
 function ruleIds(result: ESLint.LintResult | undefined): string[] {
-  return (result?.messages ?? []).map((message) => message.ruleId).filter((id): id is string => id != null);
+  return (result?.messages ?? [])
+    .map((message) => message.ruleId)
+    .filter((id): id is string => id != null);
 }
 
 test('spreading recommended with unscoped react-hooks rules does not crash when sidecar files exist', async () => {
-  const eslint = createFixtureLinter(nextStyleConsumerConfig(plugin.configs.recommended));
+  const eslint = createFixtureLinter(
+    nextStyleConsumerConfig(plugin.configs.recommended),
+  );
 
   const results = await eslint.lintFiles(['.']);
   const fatal = results.flatMap((result) =>
-    result.messages.filter((message) => message.fatal || message.message.includes('could not find plugin')),
+    result.messages.filter(
+      (message) =>
+        message.fatal || message.message.includes('could not find plugin'),
+    ),
   );
-  assert.equal(fatal.length, 0, `config apply should not throw; messages=${JSON.stringify(fatal)}`);
+  assert.equal(
+    fatal.length,
+    0,
+    `config apply should not throw; messages=${JSON.stringify(fatal)}`,
+  );
 
   assert.equal(
     resultFor(results, 'lib/data/store.json'),
     undefined,
     'recommended must not add sidecar JSON to the lint set',
   );
-  assert.equal(resultFor(results, 'package.json'), undefined, 'recommended must not add package.json to the lint set');
+  assert.equal(
+    resultFor(results, 'package.json'),
+    undefined,
+    'recommended must not add package.json to the lint set',
+  );
 
   const app = resultFor(results, 'src/app.js');
   assert.ok(app, 'expected src/app.js to be linted');
@@ -117,7 +149,9 @@ test('recommended-sidecars flags prisma, sqlite, JSON stores, and package.json d
   ]);
 
   const results = await eslint.lintFiles(['.']);
-  const fatal = results.flatMap((result) => result.messages.filter((message) => message.fatal));
+  const fatal = results.flatMap((result) =>
+    result.messages.filter((message) => message.fatal),
+  );
   assert.equal(fatal.length, 0, JSON.stringify(fatal));
 
   const prisma = resultFor(results, 'prisma/schema.prisma');

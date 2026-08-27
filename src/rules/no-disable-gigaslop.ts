@@ -25,7 +25,9 @@ function ruleList(rest: string | undefined): string[] {
 }
 
 function mentionsGigaslop(rules: string[]): boolean {
-  return rules.some((rule) => rule === 'gigaslop' || rule.startsWith('gigaslop/'));
+  return rules.some(
+    (rule) => rule === 'gigaslop' || rule.startsWith('gigaslop/'),
+  );
 }
 
 export const noDisableGigaslop = createRule<RuleOptions, MessageIds>({
@@ -69,7 +71,11 @@ export const noDisableGigaslop = createRule<RuleOptions, MessageIds>({
 
           if (rules.length === 0) {
             if (banUnqualifiedDisable && comment.loc) {
-              context.report({ loc: comment.loc, messageId: 'unqualifiedDisable', data: { kind } });
+              context.report({
+                loc: comment.loc,
+                messageId: 'unqualifiedDisable',
+                data: { kind },
+              });
             }
             continue;
           }
@@ -78,7 +84,11 @@ export const noDisableGigaslop = createRule<RuleOptions, MessageIds>({
             context.report({
               loc: comment.loc,
               messageId: 'disabledPlugin',
-              data: { preview: rules.filter((rule) => rule.startsWith('gigaslop')).join(', ') },
+              data: {
+                preview: rules
+                  .filter((rule) => rule.startsWith('gigaslop'))
+                  .join(', '),
+              },
             });
           }
         }

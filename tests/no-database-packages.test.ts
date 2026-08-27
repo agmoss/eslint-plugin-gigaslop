@@ -93,7 +93,10 @@ test('no-database-packages', () => {
       {
         code: "import x from 'not-blocked'; import y from 'pg';",
         options: [{ additionalBlocked: ['not-blocked'] }],
-        errors: [{ messageId: 'blockedPackage' }, { messageId: 'blockedPackage' }],
+        errors: [
+          { messageId: 'blockedPackage' },
+          { messageId: 'blockedPackage' },
+        ],
       },
       {
         code: "import x = require('mysql');",

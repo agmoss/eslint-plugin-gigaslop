@@ -5,7 +5,10 @@ import {
   SERVER_CATEGORIES,
   type ServerCategoryDefinition,
 } from '../utils/blocklist';
-import { findBlockedPattern, getPackageNameFromSource } from '../utils/matchPackage';
+import {
+  findBlockedPattern,
+  getPackageNameFromSource,
+} from '../utils/matchPackage';
 import { attachPackageJsonDependencyCheck } from '../utils/packageJson';
 import { specifierListeners } from '../utils/specifierListeners';
 
@@ -37,11 +40,22 @@ export const noHttpServers = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
-          allow: { type: 'array', items: { type: 'string' }, uniqueItems: true },
-          additionalBlocked: { type: 'array', items: { type: 'string' }, uniqueItems: true },
+          allow: {
+            type: 'array',
+            items: { type: 'string' },
+            uniqueItems: true,
+          },
+          additionalBlocked: {
+            type: 'array',
+            items: { type: 'string' },
+            uniqueItems: true,
+          },
           categories: {
             type: 'array',
-            items: { type: 'string', enum: ALL_SERVER_CATEGORY_IDS as unknown as string[] },
+            items: {
+              type: 'string',
+              enum: ALL_SERVER_CATEGORY_IDS as unknown as string[],
+            },
             uniqueItems: true,
           },
         },
@@ -52,7 +66,9 @@ export const noHttpServers = createRule<RuleOptions, MessageIds>({
   defaultOptions: [{}],
   create(context, [options]) {
     const allow = new Set(options.allow ?? []);
-    const activeCategories = new Set<CategoryId>(options.categories ?? ALL_SERVER_CATEGORY_IDS);
+    const activeCategories = new Set<CategoryId>(
+      options.categories ?? ALL_SERVER_CATEGORY_IDS,
+    );
 
     const blocked: Array<{ pattern: string; category: string }> = [];
     for (const category of SERVER_CATEGORIES) {
@@ -73,7 +89,9 @@ export const noHttpServers = createRule<RuleOptions, MessageIds>({
       const matched = findBlockedPattern(packageName, blockedPatterns, source);
       if (!matched) return;
 
-      const category = blocked.find((entry) => entry.pattern === matched)?.category ?? 'blocked server package';
+      const category =
+        blocked.find((entry) => entry.pattern === matched)?.category ??
+        'blocked server package';
       context.report({
         node,
         messageId: 'blockedPackage',
@@ -81,6 +99,10 @@ export const noHttpServers = createRule<RuleOptions, MessageIds>({
       });
     }
 
-    return attachPackageJsonDependencyCheck(context, specifierListeners(check), check);
+    return attachPackageJsonDependencyCheck(
+      context,
+      specifierListeners(check),
+      check,
+    );
   },
 });

@@ -4,7 +4,10 @@ function stubProgram(): string {
 
 export interface PluginProcessor {
   meta: { name: string };
-  preprocess(text: string, filename: string): Array<{ text: string; filename: string }>;
+  preprocess(
+    text: string,
+    filename: string,
+  ): Array<{ text: string; filename: string }>;
   postprocess(messages: unknown[][]): unknown[];
 }
 
@@ -26,7 +29,8 @@ function createStubProcessor(name: string): PluginProcessor {
  * package.json-aware rules can report. Source text is discarded — do not emit
  * `require()` / `import` statements other plugins will lint.
  */
-export const stubProcessor: PluginProcessor = createStubProcessor('gigaslop/stub');
+export const stubProcessor: PluginProcessor =
+  createStubProcessor('gigaslop/stub');
 
 /** @deprecated Use stubProcessor — kept so existing plugin keys keep working. */
 export const prismaProcessor = stubProcessor;
@@ -36,4 +40,6 @@ export const prismaProcessor = stubProcessor;
  * `gigaslop/packagejson`. `package.json` dependencies are read from disk in
  * the rules, not rewritten into fake `require()` calls.
  */
-export const packageJsonProcessor: PluginProcessor = createStubProcessor('gigaslop/packagejson');
+export const packageJsonProcessor: PluginProcessor = createStubProcessor(
+  'gigaslop/packagejson',
+);

@@ -8,7 +8,12 @@ const RUNTIME_SPECIFIER = /^(?:node|bun|npm|jsr):/;
 export function getPackageNameFromSource(source: string): string | null {
   if (!source) return null;
   // Relative, absolute, or path-alias imports are never npm packages.
-  if (source.startsWith('.') || source.startsWith('/') || source.startsWith('~')) return null;
+  if (
+    source.startsWith('.') ||
+    source.startsWith('/') ||
+    source.startsWith('~')
+  )
+    return null;
 
   const bare = source.replace(RUNTIME_SPECIFIER, '');
   if (!bare) return null;
@@ -48,7 +53,8 @@ export function findBlockedPattern(
   patterns: readonly string[],
   source: string = packageName,
 ): string | null {
-  const candidates = source === packageName ? [packageName] : [source, packageName];
+  const candidates =
+    source === packageName ? [packageName] : [source, packageName];
   for (const candidate of candidates) {
     for (const pattern of patterns) {
       if (matchesPattern(candidate, pattern)) return pattern;

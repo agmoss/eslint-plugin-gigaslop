@@ -33,9 +33,9 @@ export const noDatabaseConfigFiles = createRule<RuleOptions, MessageIds>({
   },
   defaultOptions: [{}],
   create(context, [options]) {
-    const patterns = DEFAULT_CONFIG_FILE_PATTERNS.concat(options.patterns ?? []).map(
-      (source) => new RegExp(source, 'i'),
-    );
+    const patterns = DEFAULT_CONFIG_FILE_PATTERNS.concat(
+      options.patterns ?? [],
+    ).map((source) => new RegExp(source, 'i'));
 
     return {
       Program(node) {
@@ -44,7 +44,11 @@ export const noDatabaseConfigFiles = createRule<RuleOptions, MessageIds>({
         if (fileName === '<input>' || fileName === '<text>') return;
 
         if (patterns.some((pattern) => pattern.test(fileName))) {
-          context.report({ node, messageId: 'blockedConfigFile', data: { fileName } });
+          context.report({
+            node,
+            messageId: 'blockedConfigFile',
+            data: { fileName },
+          });
         }
       },
     };

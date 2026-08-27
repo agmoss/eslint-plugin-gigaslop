@@ -24,7 +24,11 @@ function getStaticPropertyName(node: TSESTree.MemberExpression): string | null {
   if (!node.computed && node.property.type === AST_NODE_TYPES.Identifier) {
     return node.property.name;
   }
-  if (node.computed && node.property.type === AST_NODE_TYPES.Literal && typeof node.property.value === 'string') {
+  if (
+    node.computed &&
+    node.property.type === AST_NODE_TYPES.Literal &&
+    typeof node.property.value === 'string'
+  ) {
     return node.property.value;
   }
   return null;
@@ -33,14 +37,20 @@ function getStaticPropertyName(node: TSESTree.MemberExpression): string | null {
 function objectPatternKeyName(property: TSESTree.Property): string | null {
   const key = property.key;
   if (key.type === AST_NODE_TYPES.Identifier) return key.name;
-  if (key.type === AST_NODE_TYPES.Literal && typeof key.value === 'string') return key.value;
+  if (key.type === AST_NODE_TYPES.Literal && typeof key.value === 'string')
+    return key.value;
   return null;
 }
 
 /** `Deno.env.get('…')` */
 function isDenoEnvGet(callee: TSESTree.CallExpression['callee']): boolean {
-  if (callee.type !== AST_NODE_TYPES.MemberExpression || callee.computed) return false;
-  if (callee.property.type !== AST_NODE_TYPES.Identifier || callee.property.name !== 'get') return false;
+  if (callee.type !== AST_NODE_TYPES.MemberExpression || callee.computed)
+    return false;
+  if (
+    callee.property.type !== AST_NODE_TYPES.Identifier ||
+    callee.property.name !== 'get'
+  )
+    return false;
   const obj = callee.object;
   return (
     obj.type === AST_NODE_TYPES.MemberExpression &&
@@ -75,7 +85,11 @@ export const noDatabaseEnvVars = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
-          envVars: { type: 'array', items: { type: 'string' }, uniqueItems: true },
+          envVars: {
+            type: 'array',
+            items: { type: 'string' },
+            uniqueItems: true,
+          },
           envVarPatterns: { type: 'array', items: { type: 'string' } },
           checkDefaultPattern: { type: 'boolean' },
           checkConnectionStrings: { type: 'boolean' },
@@ -86,13 +100,20 @@ export const noDatabaseEnvVars = createRule<RuleOptions, MessageIds>({
   },
   defaultOptions: [{}],
   create(context, [options]) {
-    const blockedNames = new Set(DEFAULT_BLOCKED_ENV_VARS.concat(options.envVars ?? []));
+    const blockedNames = new Set(
+      DEFAULT_BLOCKED_ENV_VARS.concat(options.envVars ?? []),
+    );
     const patterns = [
-      ...(options.checkDefaultPattern === false ? [] : [DEFAULT_ENV_VAR_PATTERN]),
+      ...(options.checkDefaultPattern === false
+        ? []
+        : [DEFAULT_ENV_VAR_PATTERN]),
       ...(options.envVarPatterns ?? []),
     ].map((source) => new RegExp(source));
     const checkConnectionStrings = options.checkConnectionStrings !== false;
-    const connectionStringRegExp = new RegExp(DEFAULT_CONNECTION_STRING_PATTERN, 'i');
+    const connectionStringRegExp = new RegExp(
+      DEFAULT_CONNECTION_STRING_PATTERN,
+      'i',
+    );
 
     function isBlockedName(name: string): boolean {
       if (blockedNames.has(name)) return true;
@@ -105,7 +126,10 @@ export const noDatabaseEnvVars = createRule<RuleOptions, MessageIds>({
       }
     }
 
-    function reportIfConnectionString(node: TSESTree.Node, value: string | null): void {
+    function reportIfConnectionString(
+      node: TSESTree.Node,
+      value: string | null,
+    ): void {
       if (!checkConnectionStrings || value === null) return;
       if (connectionStringRegExp.test(value)) {
         context.report({ node, messageId: 'blockedConnectionString' });
@@ -130,12 +154,16 @@ export const noDatabaseEnvVars = createRule<RuleOptions, MessageIds>({
       CallExpression(node) {
         if (!isDenoEnvGet(node.callee)) return;
         const first = node.arguments[0];
-        if (first?.type === AST_NODE_TYPES.Literal && typeof first.value === 'string') {
+        if (
+          first?.type === AST_NODE_TYPES.Literal &&
+          typeof first.value === 'string'
+        ) {
           reportName(node, first.value);
         }
       },
       Literal(node) {
-        if (typeof node.value === 'string') reportIfConnectionString(node, node.value);
+        if (typeof node.value === 'string')
+          reportIfConnectionString(node, node.value);
       },
       TemplateLiteral(node) {
         reportIfConnectionString(node, firstTemplateQuasi(node));

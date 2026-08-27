@@ -5,7 +5,10 @@ import {
   DEFAULT_FS_DATASTORE_WRITE_EXTRA_PATTERNS,
   FS_DATASTORE_PACKAGES,
 } from '../utils/blocklist';
-import { findBlockedPattern, getPackageNameFromSource } from '../utils/matchPackage';
+import {
+  findBlockedPattern,
+  getPackageNameFromSource,
+} from '../utils/matchPackage';
 import { attachPackageJsonDependencyCheck } from '../utils/packageJson';
 import { specifierListeners } from '../utils/specifierListeners';
 
@@ -72,13 +75,21 @@ function staticPathHint(node: TSESTree.Node | undefined): string | null {
   }
 
   if (node.type === AST_NODE_TYPES.TemplateLiteral) {
-    return node.quasis.map((quasi) => quasi.value.cooked ?? quasi.value.raw).join('x');
+    return node.quasis
+      .map((quasi) => quasi.value.cooked ?? quasi.value.raw)
+      .join('x');
   }
 
-  if (node.type === AST_NODE_TYPES.CallExpression && isPathJoinCallee(node.callee)) {
+  if (
+    node.type === AST_NODE_TYPES.CallExpression &&
+    isPathJoinCallee(node.callee)
+  ) {
     const parts: string[] = [];
     for (const arg of node.arguments) {
-      if (arg.type === AST_NODE_TYPES.Literal && typeof arg.value === 'string') {
+      if (
+        arg.type === AST_NODE_TYPES.Literal &&
+        typeof arg.value === 'string'
+      ) {
         parts.push(arg.value);
       }
     }
@@ -98,7 +109,11 @@ function isFsWriteCall(node: TSESTree.CallExpression): boolean {
   if (callee.type === AST_NODE_TYPES.MemberExpression && !callee.computed) {
     if (callee.property.type !== AST_NODE_TYPES.Identifier) return false;
     if (FS_WRITE_NAMES.has(callee.property.name)) return true;
-    if (callee.object.type === AST_NODE_TYPES.Identifier && callee.object.name === 'Bun' && callee.property.name === 'write') {
+    if (
+      callee.object.type === AST_NODE_TYPES.Identifier &&
+      callee.object.name === 'Bun' &&
+      callee.property.name === 'write'
+    ) {
       return true;
     }
     if (
@@ -135,8 +150,16 @@ export const noFsDatastore = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
-          allow: { type: 'array', items: { type: 'string' }, uniqueItems: true },
-          additionalBlocked: { type: 'array', items: { type: 'string' }, uniqueItems: true },
+          allow: {
+            type: 'array',
+            items: { type: 'string' },
+            uniqueItems: true,
+          },
+          additionalBlocked: {
+            type: 'array',
+            items: { type: 'string' },
+            uniqueItems: true,
+          },
           additionalFilePatterns: { type: 'array', items: { type: 'string' } },
           checkFsWrites: { type: 'boolean' },
         },
@@ -147,11 +170,17 @@ export const noFsDatastore = createRule<RuleOptions, MessageIds>({
   defaultOptions: [{}],
   create(context, [options]) {
     const allow = new Set(options.allow ?? []);
-    const blockedPatterns = FS_DATASTORE_PACKAGES.concat(options.additionalBlocked ?? []);
+    const blockedPatterns = FS_DATASTORE_PACKAGES.concat(
+      options.additionalBlocked ?? [],
+    );
     const extraFilePatterns = options.additionalFilePatterns ?? [];
-    const filePatterns = compilePatterns(DEFAULT_FS_DATASTORE_FILE_PATTERNS.concat(extraFilePatterns));
+    const filePatterns = compilePatterns(
+      DEFAULT_FS_DATASTORE_FILE_PATTERNS.concat(extraFilePatterns),
+    );
     const writePatterns = compilePatterns(
-      DEFAULT_FS_DATASTORE_FILE_PATTERNS.concat(DEFAULT_FS_DATASTORE_WRITE_EXTRA_PATTERNS).concat(extraFilePatterns),
+      DEFAULT_FS_DATASTORE_FILE_PATTERNS.concat(
+        DEFAULT_FS_DATASTORE_WRITE_EXTRA_PATTERNS,
+      ).concat(extraFilePatterns),
     );
     const checkFsWrites = options.checkFsWrites !== false;
 
@@ -181,7 +210,11 @@ export const noFsDatastore = createRule<RuleOptions, MessageIds>({
           if (fileName === '<input>' || fileName === '<text>') return;
 
           if (matchesAny(fileName, filePatterns)) {
-            context.report({ node, messageId: 'blockedDataFile', data: { fileName } });
+            context.report({
+              node,
+              messageId: 'blockedDataFile',
+              data: { fileName },
+            });
           }
         },
         CallExpression(node) {
@@ -195,7 +228,11 @@ export const noFsDatastore = createRule<RuleOptions, MessageIds>({
 
           const normalized = normalizePath(pathHint);
           if (matchesAny(normalized, writePatterns)) {
-            context.report({ node, messageId: 'blockedFsWrite', data: { path: normalized } });
+            context.report({
+              node,
+              messageId: 'blockedFsWrite',
+              data: { path: normalized },
+            });
           }
         },
       },

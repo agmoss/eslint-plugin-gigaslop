@@ -97,9 +97,8 @@ export const PACKAGE_CATEGORIES: readonly PackageCategoryDefinition[] = [
   },
 ];
 
-export const ALL_CATEGORY_IDS: readonly PackageCategoryDefinition['id'][] = PACKAGE_CATEGORIES.map(
-  (category) => category.id,
-);
+export const ALL_CATEGORY_IDS: readonly PackageCategoryDefinition['id'][] =
+  PACKAGE_CATEGORIES.map((category) => category.id);
 
 /** Exact env var names called out by the spec. */
 export const DEFAULT_BLOCKED_ENV_VARS: readonly string[] = [
@@ -202,9 +201,8 @@ export const SERVER_CATEGORIES: readonly ServerCategoryDefinition[] = [
   },
 ];
 
-export const ALL_SERVER_CATEGORY_IDS: readonly ServerCategoryDefinition['id'][] = SERVER_CATEGORIES.map(
-  (category) => category.id,
-);
+export const ALL_SERVER_CATEGORY_IDS: readonly ServerCategoryDefinition['id'][] =
+  SERVER_CATEGORIES.map((category) => category.id);
 
 /**
  * Conservative SQL shape: SELECT … FROM, INSERT INTO, UPDATE … SET, etc.
@@ -259,4 +257,6 @@ export const DEFAULT_FS_DATASTORE_FILE_PATTERNS: readonly string[] = [
 ];
 
 /** Extra write-path shapes (sqlite files are already a sidecar for the config-file rule). */
-export const DEFAULT_FS_DATASTORE_WRITE_EXTRA_PATTERNS: readonly string[] = ['\\.sqlite3?$'];
+export const DEFAULT_FS_DATASTORE_WRITE_EXTRA_PATTERNS: readonly string[] = [
+  '\\.sqlite3?$',
+];
