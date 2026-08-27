@@ -132,5 +132,130 @@ export const DEFAULT_CONNECTION_STRING_PATTERN =
 export const DEFAULT_CONFIG_FILE_PATTERNS: readonly string[] = [
   '(^|/)prisma/schema\\.prisma$',
   '\\.prisma$',
+  '(^|/)prisma/migrations(/|$)',
   '(^|/)drizzle\\.config\\.[cm]?[jt]s$',
+  '\\.sqlite3?$',
+  '(^|/)docker-compose(\\.[\\w.-]+)?\\.ya?ml$',
+  '(^|/)compose\\.ya?ml$',
 ];
+
+/** Hostnames of BaaS/database HTTP APIs — fetch() here bypasses the SDK blocklist. */
+export const DEFAULT_BAAS_HTTP_HOSTS: readonly string[] = [
+  'supabase.co',
+  'supabase.in',
+  'neon.tech',
+  'psdb.cloud',
+  'planetscale.com',
+  'upstash.io',
+  'firebaseio.com',
+  'firestore.googleapis.com',
+  'convex.cloud',
+  'turso.io',
+  'tursodatabase.com',
+  'xata.sh',
+  'xata.io',
+  'tidbcloud.com',
+  'mongodb.net',
+  'rds.amazonaws.com',
+];
+
+export interface ServerCategoryDefinition {
+  id: 'http' | 'graphql';
+  label: string;
+  packages: readonly string[];
+}
+
+export const SERVER_CATEGORIES: readonly ServerCategoryDefinition[] = [
+  {
+    id: 'http',
+    label: 'HTTP server framework',
+    packages: [
+      'express',
+      'fastify',
+      'hono',
+      'koa',
+      '@nestjs/core',
+      '@nestjs/platform-express',
+      '@nestjs/platform-fastify',
+      'elysia',
+      'restify',
+      'polka',
+      'micro',
+      '@hapi/hapi',
+      'connect',
+    ],
+  },
+  {
+    id: 'graphql',
+    label: 'GraphQL server',
+    packages: [
+      '@apollo/server',
+      'apollo-server',
+      'apollo-server-express',
+      'apollo-server-fastify',
+      'graphql-yoga',
+      '@graphql-yoga/node',
+      'mercurius',
+      'nexus',
+      'type-graphql',
+    ],
+  },
+];
+
+export const ALL_SERVER_CATEGORY_IDS: readonly ServerCategoryDefinition['id'][] = SERVER_CATEGORIES.map(
+  (category) => category.id,
+);
+
+/**
+ * Conservative SQL shape: SELECT … FROM, INSERT INTO, UPDATE … SET, etc.
+ * Avoids flagging English "select a winner" / "update the UI".
+ */
+export const DEFAULT_SQL_PATTERN =
+  '^\\s*(?:WITH\\s+[\\s\\S]+?\\s+)?(?:SELECT\\s+[\\s\\S]+?\\s+FROM|INSERT\\s+INTO|UPDATE\\s+\\S+\\s+SET|DELETE\\s+FROM|CREATE\\s+(?:TABLE|INDEX|DATABASE|SCHEMA)|ALTER\\s+TABLE|DROP\\s+(?:TABLE|INDEX|DATABASE)|TRUNCATE\\s+(?:TABLE\\s+)?|EXPLAIN\\s+SELECT)';
+
+/**
+ * Embedded / file-backed stores agents reach for when pg/prisma are blocked.
+ * SQLite drivers stay on `no-database-packages`; this list is JSON/Level/NeDB/etc.
+ */
+export const FS_DATASTORE_PACKAGES: readonly string[] = [
+  'lowdb',
+  'steno',
+  'level',
+  'leveldown',
+  'levelup',
+  'classic-level',
+  'abstract-level',
+  'encoding-down',
+  'memdown',
+  'memory-level',
+  'browser-level',
+  'rocksdb',
+  'rocks-level',
+  'nedb',
+  '@seald-io/nedb',
+  'lokijs',
+  'json-server',
+  'node-json-db',
+  'simple-json-db',
+  'flat-file-db',
+  'node-persist',
+  '@keyv/file',
+  'pouchdb',
+  'pouchdb-node',
+  'pouchdb-adapter-leveldb',
+];
+
+/**
+ * Filenames that *are* a file-backed store. SQLite (`*.sqlite`) stays on
+ * `no-database-config-files` so recommended does not double-report.
+ */
+export const DEFAULT_FS_DATASTORE_FILE_PATTERNS: readonly string[] = [
+  '\\.db$',
+  '\\.ldb$',
+  '\\.leveldb$',
+  '(^|/)(data|db|database|store|datastore)/.+\\.(json|db)$',
+  '(^|/)(db|database|datastore|store)\\.json$',
+];
+
+/** Extra write-path shapes (sqlite files are already a sidecar for the config-file rule). */
+export const DEFAULT_FS_DATASTORE_WRITE_EXTRA_PATTERNS: readonly string[] = ['\\.sqlite3?$'];

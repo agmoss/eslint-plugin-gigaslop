@@ -9,11 +9,12 @@ export interface PluginProcessor {
 }
 
 /**
- * Lets ESLint visit `*.prisma` files so `no-database-config-files` can report
- * on the filename. Source text is discarded; the rule does not inspect it.
+ * Lets ESLint visit non-JS sidecar files (Prisma, SQLite, compose YAML, SQL
+ * migrations, JSON stores, `*.db`) so filename rules can report. Source text
+ * is discarded.
  */
-export const prismaProcessor: PluginProcessor = {
-  meta: { name: 'gigaslop/prisma' },
+export const stubProcessor: PluginProcessor = {
+  meta: { name: 'gigaslop/stub' },
   preprocess(_text, filename) {
     return [{ text: stubProgram(), filename }];
   },
@@ -21,6 +22,9 @@ export const prismaProcessor: PluginProcessor = {
     return messages.flat();
   },
 };
+
+/** @deprecated Use stubProcessor — kept so existing plugin keys keep working. */
+export const prismaProcessor = stubProcessor;
 
 interface PackageJsonShape {
   dependencies?: Record<string, string>;

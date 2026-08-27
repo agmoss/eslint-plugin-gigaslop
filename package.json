@@ -11,9 +11,6 @@
   ],
   "license": "MIT",
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -22,30 +19,43 @@
     },
     "./package.json": "./package.json"
   },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
-  "engines": {
-    "node": ">=18.18.0"
-  },
-  "peerDependencies": {
-    "eslint": "^8.57.0 || ^9.0.0"
+  "scripts": {
+    "build": "tsup",
+    "format:md": "markdownlint-cli2 --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "lint:md": "markdownlint-cli2",
+    "prepublishOnly": "npm run build",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@typescript-eslint/utils": "^8.0.0"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@eslint/markdown": "^8.0.3",
     "@types/node": "^22.0.0",
     "@typescript-eslint/parser": "^8.0.0",
-    "eslint": "^9.0.0",
+    "eslint": "^10.9.1",
+    "globals": "^17.11.0",
+    "jiti": "^2.7.0",
+    "markdownlint-cli2": "^0.17.2",
     "tsup": "^8.0.0",
     "tsx": "^4.0.0",
-    "typescript": "^5.5.0"
+    "typescript": "^5.5.0",
+    "typescript-eslint": "^8.68.0"
   },
-  "scripts": {
-    "build": "tsup",
-    "test": "tsx --test tests/*.test.ts",
-    "typecheck": "tsc --noEmit",
-    "prepublishOnly": "npm run build"
+  "peerDependencies": {
+    "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0"
+  },
+  "engines": {
+    "node": ">=18.18.0"
   }
 }

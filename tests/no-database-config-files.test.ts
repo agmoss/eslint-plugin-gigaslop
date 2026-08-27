@@ -22,6 +22,11 @@ test('no-database-config-files', () => {
         errors: [{ messageId: 'blockedConfigFile' }],
       },
       {
+        code: '-- migration',
+        filename: 'prisma/migrations/20240101_init/migration.sql',
+        errors: [{ messageId: 'blockedConfigFile' }],
+      },
+      {
         code: 'export default {};',
         filename: 'drizzle.config.ts',
         errors: [{ messageId: 'blockedConfigFile' }],
@@ -34,6 +39,21 @@ test('no-database-config-files', () => {
       {
         code: 'export default {};',
         filename: 'apps/web/custom.schema.prisma',
+        errors: [{ messageId: 'blockedConfigFile' }],
+      },
+      {
+        code: '',
+        filename: 'data/app.sqlite',
+        errors: [{ messageId: 'blockedConfigFile' }],
+      },
+      {
+        code: 'services: {}\n',
+        filename: 'docker-compose.yml',
+        errors: [{ messageId: 'blockedConfigFile' }],
+      },
+      {
+        code: 'services: {}\n',
+        filename: 'compose.yaml',
         errors: [{ messageId: 'blockedConfigFile' }],
       },
     ],

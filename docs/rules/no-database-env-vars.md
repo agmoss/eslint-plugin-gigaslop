@@ -80,7 +80,7 @@ When `false`, skip the built-in fallback pattern. Default: `true`.
 
 The default pattern matches names like `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`, `MYSQL_URL`, and `MONGO_URL`:
 
-```
+```regex
 ^(DATABASE|POSTGRES?|MYSQL|MARIADB|MONGO(DB)?|REDIS|MSSQL|SQLITE|ORACLE|CASSANDRA)(_[A-Z0-9]+)*_(URL|URI|CONN(ECTION)?(_STRING)?)$
 ```
 
@@ -97,7 +97,7 @@ When `false`, do not flag string literals that look like connection URIs. Defaul
 
 Default URI scheme pattern (case-insensitive):
 
-```
+```regex
 ^(postgres(ql)?|mysql|mariadb|mongodb(\+srv)?|redis|rediss|mssql|oracle):\/\/
 ```
 

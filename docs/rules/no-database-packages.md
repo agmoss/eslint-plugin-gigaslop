@@ -135,3 +135,4 @@ Do not enable this rule in a project whose data layer **is** one of the listed p
 - [no-raw-database-apis](./no-raw-database-apis.md) — flags driver-shaped constructors/calls even without a blocked import
 - [no-database-env-vars](./no-database-env-vars.md) — flags connection env vars and URI literals
 - [no-database-config-files](./no-database-config-files.md) — flags schema/config filenames
+- [no-fs-datastore](./no-fs-datastore.md) — file-backed JSON/Level/NeDB stores

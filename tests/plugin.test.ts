@@ -49,20 +49,91 @@ test('recommended lints *.prisma via the prisma processor', async () => {
 });
 
 test('recommended lints package.json dependencies via the package-json processor', async () => {
-  const result = await lint('package.json', JSON.stringify({ dependencies: { pg: '^8.0.0' } }));
+  const result = await lint(
+    'package.json',
+    JSON.stringify({ dependencies: { pg: '^8.0.0', express: '^4.0.0', lowdb: '^7.0.0' } }),
+  );
   assert.equal(result.fatalErrorCount, 0, JSON.stringify(result.messages));
   assert.ok(
     result.messages.some((message) => message.ruleId === 'gigaslop/no-database-packages'),
     `expected no-database-packages, got ${JSON.stringify(result.messages)}`,
+  );
+  assert.ok(
+    result.messages.some((message) => message.ruleId === 'gigaslop/no-http-servers'),
+    `expected no-http-servers, got ${JSON.stringify(result.messages)}`,
+  );
+  assert.ok(
+    result.messages.some((message) => message.ruleId === 'gigaslop/no-fs-datastore'),
+    `expected no-fs-datastore, got ${JSON.stringify(result.messages)}`,
+  );
+});
+
+test('recommended flags file-backed datastore packages, writes, and sidecar JSON', async () => {
+  const lowdb = await lint('src/store.js', "import { Low } from 'lowdb';\n");
+  assert.ok(
+    lowdb.messages.some((message) => message.ruleId === 'gigaslop/no-fs-datastore'),
+    `expected no-fs-datastore on lowdb, got ${JSON.stringify(lowdb.messages)}`,
+  );
+
+  const write = await lint(
+    'src/save.js',
+    "fs.writeFileSync('data/users.json', JSON.stringify(users));\n",
+  );
+  assert.ok(
+    write.messages.some((message) => message.ruleId === 'gigaslop/no-fs-datastore'),
+    `expected no-fs-datastore on writeFile, got ${JSON.stringify(write.messages)}`,
+  );
+
+  const json = await lint('data/users.json', '{"users":[]}\n');
+  assert.equal(json.fatalErrorCount, 0, JSON.stringify(json.messages));
+  assert.ok(
+    json.messages.some((message) => message.ruleId === 'gigaslop/no-fs-datastore'),
+    `expected no-fs-datastore on data/users.json, got ${JSON.stringify(json.messages)}`,
+  );
+});
+
+test('recommended flags BaaS HTTP, raw SQL, HTTP servers, and gigaslop disables', async () => {
+  const supabase = await lint(
+    'src/client.js',
+    "fetch('https://abc.supabase.co/rest/v1/users');\n",
+  );
+  assert.ok(supabase.messages.some((message) => message.ruleId === 'gigaslop/no-baas-http'));
+
+  const sql = await lint('src/query.js', "const q = 'SELECT * FROM users';\n");
+  assert.ok(sql.messages.some((message) => message.ruleId === 'gigaslop/no-raw-sql'));
+
+  const express = await lint('src/server.js', "import express from 'express';\n");
+  assert.ok(express.messages.some((message) => message.ruleId === 'gigaslop/no-http-servers'));
+
+  const disable = await lint(
+    'src/escape.js',
+    '/* eslint-disable gigaslop/no-database-packages */\nconst x = 1;\n',
+  );
+  assert.ok(disable.messages.some((message) => message.ruleId === 'gigaslop/no-disable-gigaslop'));
+});
+
+test('recommended lints sqlite and docker-compose sidecar files', async () => {
+  const sqlite = await lint('data/app.sqlite', '');
+  assert.equal(sqlite.fatalErrorCount, 0, JSON.stringify(sqlite.messages));
+  assert.ok(
+    sqlite.messages.some((message) => message.ruleId === 'gigaslop/no-database-config-files'),
+    `expected config-files on sqlite, got ${JSON.stringify(sqlite.messages)}`,
+  );
+
+  const compose = await lint('docker-compose.yml', 'services:\n  db:\n    image: postgres\n');
+  assert.equal(compose.fatalErrorCount, 0, JSON.stringify(compose.messages));
+  assert.ok(
+    compose.messages.some((message) => message.ruleId === 'gigaslop/no-database-config-files'),
+    `expected config-files on compose, got ${JSON.stringify(compose.messages)}`,
   );
 });
 
 test('recommended-legacy names processors eslintrc can resolve', () => {
   const legacy = plugin.configs['recommended-legacy'];
   assert.deepEqual(legacy.plugins, ['gigaslop']);
-  assert.equal(legacy.overrides[0]?.processor, 'gigaslop/prisma');
+  assert.equal(legacy.overrides[0]?.processor, 'gigaslop/stub');
   assert.equal(legacy.overrides[1]?.processor, 'gigaslop/packagejson');
-  assert.ok(plugin.processors.prisma);
+  assert.ok(plugin.processors.stub);
   assert.ok(plugin.processors.packagejson);
 });
 
@@ -74,5 +145,5 @@ test('CJS export exposes processors on the module root for eslintrc', (t) => {
   }
   const required = createRequire(import.meta.url)(distCjs) as typeof plugin;
   assert.ok(required.processors?.prisma, 'CJS require() is missing processors — eslintrc will fail');
-  assert.equal(required.configs['recommended-legacy']?.overrides[0]?.processor, 'gigaslop/prisma');
+  assert.equal(required.configs['recommended-legacy']?.overrides[0]?.processor, 'gigaslop/stub');
 });

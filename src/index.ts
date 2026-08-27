@@ -2,7 +2,12 @@ import { noDatabasePackages } from './rules/no-database-packages';
 import { noDatabaseEnvVars } from './rules/no-database-env-vars';
 import { noRawDatabaseApis } from './rules/no-raw-database-apis';
 import { noDatabaseConfigFiles } from './rules/no-database-config-files';
-import { packageJsonProcessor, prismaProcessor } from './processors';
+import { noBaasHttp } from './rules/no-baas-http';
+import { noRawSql } from './rules/no-raw-sql';
+import { noHttpServers } from './rules/no-http-servers';
+import { noDisableGigaslop } from './rules/no-disable-gigaslop';
+import { noFsDatastore } from './rules/no-fs-datastore';
+import { packageJsonProcessor, stubProcessor } from './processors';
 
 const PLUGIN_NAME = 'gigaslop';
 
@@ -11,11 +16,17 @@ const rules = {
   'no-database-env-vars': noDatabaseEnvVars,
   'no-raw-database-apis': noRawDatabaseApis,
   'no-database-config-files': noDatabaseConfigFiles,
+  'no-baas-http': noBaasHttp,
+  'no-raw-sql': noRawSql,
+  'no-http-servers': noHttpServers,
+  'no-disable-gigaslop': noDisableGigaslop,
+  'no-fs-datastore': noFsDatastore,
 };
 
 const processors = {
-  prisma: prismaProcessor,
-  '.prisma': prismaProcessor,
+  prisma: stubProcessor,
+  '.prisma': stubProcessor,
+  stub: stubProcessor,
   packagejson: packageJsonProcessor,
 };
 
@@ -23,7 +34,37 @@ const recommendedRuleSettings: Record<string, 'error'> = {
   [`${PLUGIN_NAME}/no-database-packages`]: 'error',
   [`${PLUGIN_NAME}/no-database-env-vars`]: 'error',
   [`${PLUGIN_NAME}/no-database-config-files`]: 'error',
+  [`${PLUGIN_NAME}/no-baas-http`]: 'error',
+  [`${PLUGIN_NAME}/no-raw-sql`]: 'error',
+  [`${PLUGIN_NAME}/no-http-servers`]: 'error',
+  [`${PLUGIN_NAME}/no-disable-gigaslop`]: 'error',
+  [`${PLUGIN_NAME}/no-fs-datastore`]: 'error',
 };
+
+const SIDECAR_FILES = [
+  '**/*.prisma',
+  '**/*.sqlite',
+  '**/*.sqlite3',
+  '**/prisma/migrations/**',
+  '**/docker-compose.yml',
+  '**/docker-compose.yaml',
+  '**/docker-compose.*.yml',
+  '**/docker-compose.*.yaml',
+  '**/compose.yml',
+  '**/compose.yaml',
+  '**/*.db',
+  '**/*.ldb',
+  '**/*.leveldb',
+  '**/db.json',
+  '**/database.json',
+  '**/store.json',
+  '**/datastore.json',
+  '**/data/**/*.json',
+  '**/db/**/*.json',
+  '**/database/**/*.json',
+  '**/store/**/*.json',
+  '**/datastore/**/*.json',
+];
 
 /**
  * Deliberately loose shape for a flat ESLint config object — the strict
@@ -64,16 +105,14 @@ const plugin: AgentDbBlocklistPlugin = {
   rules,
   processors,
   configs: {
-    // Flat config (ESLint 9+, and ESLint 8 with eslint.config.js).
     recommended: [],
-    // Legacy `.eslintrc*` config (`extends: ["plugin:gigaslop/recommended-legacy"]`).
     'recommended-legacy': {
       plugins: [PLUGIN_NAME],
       rules: recommendedRuleSettings,
       overrides: [
         {
-          files: ['**/*.prisma'],
-          processor: `${PLUGIN_NAME}/prisma`,
+          files: SIDECAR_FILES,
+          processor: `${PLUGIN_NAME}/stub`,
         },
         {
           files: ['**/package.json'],
@@ -84,8 +123,6 @@ const plugin: AgentDbBlocklistPlugin = {
   },
 };
 
-// Self-referencing flat config: the plugin object must exist before we can
-// point `plugins` at it, so this array is built after `plugin` is declared.
 plugin.configs.recommended = [
   {
     name: `${PLUGIN_NAME}/recommended`,
@@ -93,12 +130,13 @@ plugin.configs.recommended = [
     rules: recommendedRuleSettings,
   },
   {
-    name: `${PLUGIN_NAME}/recommended/prisma`,
-    files: ['**/*.prisma'],
+    name: `${PLUGIN_NAME}/recommended/sidecar-files`,
+    files: SIDECAR_FILES,
     plugins: { [PLUGIN_NAME]: plugin },
-    processor: prismaProcessor,
+    processor: stubProcessor,
     rules: {
       [`${PLUGIN_NAME}/no-database-config-files`]: 'error',
+      [`${PLUGIN_NAME}/no-fs-datastore`]: 'error',
     },
   },
   {
@@ -108,6 +146,8 @@ plugin.configs.recommended = [
     processor: packageJsonProcessor,
     rules: {
       [`${PLUGIN_NAME}/no-database-packages`]: 'error',
+      [`${PLUGIN_NAME}/no-http-servers`]: 'error',
+      [`${PLUGIN_NAME}/no-fs-datastore`]: 'error',
     },
   },
 ];
