@@ -8,7 +8,7 @@ This rule is included in `recommended` and `recommended-legacy` at `"error"`.
 
 Three checks:
 
-1. **Packages** — same specifier coverage as [no-database-packages](./no-database-packages.md) (`import` / `require` / `import()` / `package.json` via the recommended processor).
+1. **Packages** — same specifier coverage as [no-database-packages](./no-database-packages.md) (`import` / `require` / `import()` / `package.json` via `recommended-sidecars`).
 2. **Filenames** — the linted file *is* a store: `*.db`, `*.ldb`, `db.json`, `data/*.json`, …
 3. **Writes** — `writeFile` / `writeFileSync` / `appendFile` / `Bun.write` / `Deno.writeTextFile` / fs-extra `outputJson` whose path looks like a store (`data/users.json`, `db.json`, `*.sqlite`, …). `path.join(__dirname, 'data', 'users.json')` is included when enough segments are string literals.
 
@@ -79,8 +79,8 @@ Do not enable this rule in a project whose official data layer *is* a local JSON
 ## Limitations
 
 - Dynamic paths (`writeFile(pathVariable)`) are not checked.
-- Spreading `configs.recommended` registers a stub processor for `*.db`, `db.json`, and `data/**/*.json`. Without recommended, add those globs and `processor: "gigaslop/stub"`.
-- JSON under `data/` used for i18n or fixtures will be flagged. Exclude those paths with ESLint `ignores` or a narrower `files` glob.
+- Spreading `configs["recommended-sidecars"]` registers a stub processor for `*.db`, `db.json`, and `data/**/*.json`. Without that config, add those globs and `processor: "gigaslop/stub"`.
+- JSON under `data/` used for i18n, fixtures, or static lookups (`lib/data/*.json`) will be flagged. Exclude those paths with ESLint `ignores` or a narrower `files` glob.
 
 ## Related Rules
 

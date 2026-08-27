@@ -6,6 +6,7 @@ import {
   FS_DATASTORE_PACKAGES,
 } from '../utils/blocklist';
 import { findBlockedPattern, getPackageNameFromSource } from '../utils/matchPackage';
+import { attachPackageJsonDependencyCheck } from '../utils/packageJson';
 import { specifierListeners } from '../utils/specifierListeners';
 
 export interface Options {
@@ -170,31 +171,35 @@ export const noFsDatastore = createRule<RuleOptions, MessageIds>({
 
     const packageListeners = specifierListeners(checkPackage);
 
-    return {
-      ...packageListeners,
-      Program(node) {
-        const rawFileName = context.filename ?? context.getFilename();
-        const fileName = rawFileName.replace(/\\/g, '/');
-        if (fileName === '<input>' || fileName === '<text>') return;
+    return attachPackageJsonDependencyCheck(
+      context,
+      {
+        ...packageListeners,
+        Program(node) {
+          const rawFileName = context.filename ?? context.getFilename();
+          const fileName = rawFileName.replace(/\\/g, '/');
+          if (fileName === '<input>' || fileName === '<text>') return;
 
-        if (matchesAny(fileName, filePatterns)) {
-          context.report({ node, messageId: 'blockedDataFile', data: { fileName } });
-        }
+          if (matchesAny(fileName, filePatterns)) {
+            context.report({ node, messageId: 'blockedDataFile', data: { fileName } });
+          }
+        },
+        CallExpression(node) {
+          const onPackageCall = packageListeners.CallExpression;
+          if (typeof onPackageCall === 'function') onPackageCall(node);
+
+          if (!checkFsWrites || !isFsWriteCall(node)) return;
+
+          const pathHint = staticPathHint(node.arguments[0]);
+          if (!pathHint) return;
+
+          const normalized = normalizePath(pathHint);
+          if (matchesAny(normalized, writePatterns)) {
+            context.report({ node, messageId: 'blockedFsWrite', data: { path: normalized } });
+          }
+        },
       },
-      CallExpression(node) {
-        const onPackageCall = packageListeners.CallExpression;
-        if (typeof onPackageCall === 'function') onPackageCall(node);
-
-        if (!checkFsWrites || !isFsWriteCall(node)) return;
-
-        const pathHint = staticPathHint(node.arguments[0]);
-        if (!pathHint) return;
-
-        const normalized = normalizePath(pathHint);
-        if (matchesAny(normalized, writePatterns)) {
-          context.report({ node, messageId: 'blockedFsWrite', data: { path: normalized } });
-        }
-      },
-    };
+      checkPackage,
+    );
   },
 });

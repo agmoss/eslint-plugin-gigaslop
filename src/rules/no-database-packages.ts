@@ -1,6 +1,7 @@
 import { createRule } from '../utils/createRule';
 import { ALL_CATEGORY_IDS, PACKAGE_CATEGORIES, type PackageCategoryDefinition } from '../utils/blocklist';
 import { findBlockedPattern, getPackageNameFromSource } from '../utils/matchPackage';
+import { attachPackageJsonDependencyCheck } from '../utils/packageJson';
 import { specifierListeners } from '../utils/specifierListeners';
 import type { TSESTree } from '@typescript-eslint/utils';
 
@@ -78,6 +79,6 @@ export const noDatabasePackages = createRule<RuleOptions, MessageIds>({
       });
     }
 
-    return specifierListeners(check);
+    return attachPackageJsonDependencyCheck(context, specifierListeners(check), check);
   },
 });

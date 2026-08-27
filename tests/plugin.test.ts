@@ -6,19 +6,30 @@ import { fileURLToPath } from 'node:url';
 import { ESLint } from 'eslint';
 import plugin from '../src/index';
 
-function createLinter(): ESLint {
+function createLinter(overrideConfig: unknown = plugin.configs.recommended): ESLint {
   return new ESLint({
     overrideConfigFile: true,
     // Plugin configs are loosely typed; ESLint's Config generic doesn't accept them directly.
-    overrideConfig: plugin.configs.recommended as never,
+    overrideConfig: overrideConfig as never,
   });
 }
 
-async function lint(filePath: string, code: string) {
-  const [result] = await createLinter().lintText(code, { filePath });
+async function lint(filePath: string, code: string, overrideConfig?: unknown) {
+  const [result] = await createLinter(overrideConfig).lintText(code, { filePath });
   assert.ok(result, `expected a lint result for ${filePath}`);
   return result;
 }
+
+test('recommended is a JS/TS overlay and does not add sidecar files globs', () => {
+  assert.equal(plugin.configs.recommended.length, 1);
+  assert.equal(plugin.configs.recommended[0]?.files, undefined);
+  assert.ok(
+    plugin.configs['recommended-sidecars'].some((entry) =>
+      entry.files?.includes('**/data/**/*.json'),
+    ),
+    'expected recommended-sidecars to own the data/**/*.json glob',
+  );
+});
 
 test('recommended loads through the public plugin entry and flags a blocked import', async () => {
   const result = await lint('src/db.js', "import { Pool } from 'pg';\n");
@@ -39,8 +50,12 @@ test('recommended does not enable no-raw-database-apis (Client false positives)'
   );
 });
 
-test('recommended lints *.prisma via the prisma processor', async () => {
-  const result = await lint('prisma/schema.prisma', 'model User {}\n');
+test('recommended-sidecars lints *.prisma via the stub processor', async () => {
+  const result = await lint(
+    'prisma/schema.prisma',
+    'model User {}\n',
+    plugin.configs['recommended-sidecars'],
+  );
   assert.equal(result.fatalErrorCount, 0, JSON.stringify(result.messages));
   assert.ok(
     result.messages.some((message) => message.ruleId === 'gigaslop/no-database-config-files'),
@@ -48,27 +63,7 @@ test('recommended lints *.prisma via the prisma processor', async () => {
   );
 });
 
-test('recommended lints package.json dependencies via the package-json processor', async () => {
-  const result = await lint(
-    'package.json',
-    JSON.stringify({ dependencies: { pg: '^8.0.0', express: '^4.0.0', lowdb: '^7.0.0' } }),
-  );
-  assert.equal(result.fatalErrorCount, 0, JSON.stringify(result.messages));
-  assert.ok(
-    result.messages.some((message) => message.ruleId === 'gigaslop/no-database-packages'),
-    `expected no-database-packages, got ${JSON.stringify(result.messages)}`,
-  );
-  assert.ok(
-    result.messages.some((message) => message.ruleId === 'gigaslop/no-http-servers'),
-    `expected no-http-servers, got ${JSON.stringify(result.messages)}`,
-  );
-  assert.ok(
-    result.messages.some((message) => message.ruleId === 'gigaslop/no-fs-datastore'),
-    `expected no-fs-datastore, got ${JSON.stringify(result.messages)}`,
-  );
-});
-
-test('recommended flags file-backed datastore packages, writes, and sidecar JSON', async () => {
+test('recommended flags file-backed datastore packages and writes in JS', async () => {
   const lowdb = await lint('src/store.js', "import { Low } from 'lowdb';\n");
   assert.ok(
     lowdb.messages.some((message) => message.ruleId === 'gigaslop/no-fs-datastore'),
@@ -83,8 +78,14 @@ test('recommended flags file-backed datastore packages, writes, and sidecar JSON
     write.messages.some((message) => message.ruleId === 'gigaslop/no-fs-datastore'),
     `expected no-fs-datastore on writeFile, got ${JSON.stringify(write.messages)}`,
   );
+});
 
-  const json = await lint('data/users.json', '{"users":[]}\n');
+test('recommended-sidecars flags sidecar JSON stores', async () => {
+  const json = await lint(
+    'data/users.json',
+    '{"users":[]}\n',
+    plugin.configs['recommended-sidecars'],
+  );
   assert.equal(json.fatalErrorCount, 0, JSON.stringify(json.messages));
   assert.ok(
     json.messages.some((message) => message.ruleId === 'gigaslop/no-fs-datastore'),
@@ -112,15 +113,19 @@ test('recommended flags BaaS HTTP, raw SQL, HTTP servers, and gigaslop disables'
   assert.ok(disable.messages.some((message) => message.ruleId === 'gigaslop/no-disable-gigaslop'));
 });
 
-test('recommended lints sqlite and docker-compose sidecar files', async () => {
-  const sqlite = await lint('data/app.sqlite', '');
+test('recommended-sidecars lints sqlite and docker-compose sidecar files', async () => {
+  const sqlite = await lint('data/app.sqlite', '', plugin.configs['recommended-sidecars']);
   assert.equal(sqlite.fatalErrorCount, 0, JSON.stringify(sqlite.messages));
   assert.ok(
     sqlite.messages.some((message) => message.ruleId === 'gigaslop/no-database-config-files'),
     `expected config-files on sqlite, got ${JSON.stringify(sqlite.messages)}`,
   );
 
-  const compose = await lint('docker-compose.yml', 'services:\n  db:\n    image: postgres\n');
+  const compose = await lint(
+    'docker-compose.yml',
+    'services:\n  db:\n    image: postgres\n',
+    plugin.configs['recommended-sidecars'],
+  );
   assert.equal(compose.fatalErrorCount, 0, JSON.stringify(compose.messages));
   assert.ok(
     compose.messages.some((message) => message.ruleId === 'gigaslop/no-database-config-files'),
@@ -135,6 +140,17 @@ test('recommended-legacy names processors eslintrc can resolve', () => {
   assert.equal(legacy.overrides[1]?.processor, 'gigaslop/packagejson');
   assert.ok(plugin.processors.stub);
   assert.ok(plugin.processors.packagejson);
+});
+
+test('packagejson processor emits a no-op stub, not require()', () => {
+  const [chunk] = plugin.processors.packagejson.preprocess(
+    JSON.stringify({ dependencies: { pg: '^8.0.0' } }),
+    'package.json',
+  );
+  assert.ok(chunk);
+  assert.equal(chunk.filename, 'package.json');
+  assert.equal(chunk.text.trim(), ';');
+  assert.equal(chunk.text.includes('require'), false);
 });
 
 test('CJS export exposes processors on the module root for eslintrc', (t) => {

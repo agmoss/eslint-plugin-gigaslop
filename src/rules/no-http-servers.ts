@@ -6,6 +6,7 @@ import {
   type ServerCategoryDefinition,
 } from '../utils/blocklist';
 import { findBlockedPattern, getPackageNameFromSource } from '../utils/matchPackage';
+import { attachPackageJsonDependencyCheck } from '../utils/packageJson';
 import { specifierListeners } from '../utils/specifierListeners';
 
 type CategoryId = ServerCategoryDefinition['id'];
@@ -80,6 +81,6 @@ export const noHttpServers = createRule<RuleOptions, MessageIds>({
       });
     }
 
-    return specifierListeners(check);
+    return attachPackageJsonDependencyCheck(context, specifierListeners(check), check);
   },
 });

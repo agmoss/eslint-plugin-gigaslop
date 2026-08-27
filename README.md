@@ -66,7 +66,20 @@ export default [
 ];
 ```
 
-Spreading `recommended` also lints sidecar files (`**/*.prisma`, `**/*.sqlite`, `**/*.db`, `data/**/*.json`, Prisma migrations, Compose YAML) and `**/package.json` via processors so schema files, SQLite, JSON stores, compose stacks, and newly added dependencies are flagged, not only application imports.
+**Next.js / React:** spread **only** `recommended`. ESLint 9 applies a later unscoped `{ rules: { "react-hooks/…": "warn" } }` object to every file any config `files` glob added; `eslint-config-next` only defines `react-hooks` for JS/TS.
+
+`recommended` is a JS/TS overlay: it does not add Prisma, SQLite, Compose, `data/**/*.json`, or `package.json` to the lint set. **0.3.0 breaking change:** 0.2.0 did add those sidecar globs, which crashed Next-style configs that override `react-hooks/*` without a `files` glob.
+
+To also lint sidecar files and `package.json` dependencies:
+
+```js
+export default [
+  ...gigaslop.configs.recommended,
+  ...gigaslop.configs["recommended-sidecars"],
+];
+```
+
+Spread `recommended-sidecars` only if every plugin-namespaced rule override is scoped to JS/TS (or you do not use unscoped `react-hooks/…` rules). JSON under `data/` is treated as a datastore path, so static lookups like `lib/data/city-coords.json` are flagged when sidecars are enabled.
 
 ## Usage (legacy `.eslintrc*`)
 
@@ -76,13 +89,13 @@ Spreading `recommended` also lints sidecar files (`**/*.prisma`, `**/*.sqlite`, 
 }
 ```
 
-(The `plugin:` prefix loads the plugin package for you — no separate `"plugins"` entry needed.)
+(The `plugin:` prefix loads the plugin package for you — no separate `"plugins"` entry needed.) `recommended-legacy` still registers sidecar/`package.json` processors via `overrides`; eslintrc plugins are typically global, so the ESLint 9 Next crash does not apply. For flat config, use `recommended-sidecars` instead.
 
 ## Rules
 
 | Rule                                                                          | Recommended | What it catches                                                                                                         |
 | ----------------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------------------------------------------------- |
-| [`gigaslop/no-database-packages`](docs/rules/no-database-packages.md)         | `"error"`   | Blocked driver/ORM/BaaS imports, including `package.json` dependencies.                                                 |
+| [`gigaslop/no-database-packages`](docs/rules/no-database-packages.md)         | `"error"`   | Blocked driver/ORM/BaaS imports. `package.json` deps need `recommended-sidecars`.                                       |
 | [`gigaslop/no-database-env-vars`](docs/rules/no-database-env-vars.md)         | `"error"`   | `DATABASE_URL` / `PGHOST` / connection-string literals.                                                                 |
 | [`gigaslop/no-database-config-files`](docs/rules/no-database-config-files.md) | `"error"`   | Schema/config/sidecar files: Prisma, Drizzle config, `*.sqlite`, `prisma/migrations`, Compose YAML.                     |
 | [`gigaslop/no-baas-http`](docs/rules/no-baas-http.md)                         | `"error"`   | `fetch`/URL strings to Supabase, Neon, Upstash, and other database HTTP APIs.                                           |
@@ -257,7 +270,7 @@ Published to npm as [`eslint-plugin-gigaslop`](https://www.npmjs.com/package/esl
 
 ### Versioning
 
-Follow [semver](https://semver.org/). This package is `0.1.0`: until `1.0.0`, breaking changes may ship in a minor bump.
+Follow [semver](https://semver.org/). This package is `0.3.0`: until `1.0.0`, breaking changes may ship in a minor bump.
 
 | Bump      | Use when                                                                         |
 | --------- | -------------------------------------------------------------------------------- |
@@ -271,9 +284,9 @@ Bump **both** of these — they are not wired together:
 - `plugin.meta.version` in `src/index.ts`
 
 ```bash
-npm version patch    # 0.1.0 → 0.1.1
-npm version minor    # 0.1.0 → 0.2.0
-npm version major    # 0.1.0 → 1.0.0
+npm version patch    # 0.3.0 → 0.3.1
+npm version minor    # 0.3.0 → 0.4.0
+npm version major    # 0.3.0 → 1.0.0
 ```
 
 Never reuse a version that has already been published.

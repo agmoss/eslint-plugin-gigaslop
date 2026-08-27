@@ -8,7 +8,7 @@ If **this repo is the HTTP server**, turn the rule off (or `allow` the framework
 
 ## Rule Details
 
-Same specifier coverage as [no-database-packages](./no-database-packages.md) (`import` / `require` / `import()` / `package.json` via the recommended processor).
+Same specifier coverage as [no-database-packages](./no-database-packages.md) (`import` / `require` / `import()` / `package.json` via `recommended-sidecars`).
 
 ### `http`
 

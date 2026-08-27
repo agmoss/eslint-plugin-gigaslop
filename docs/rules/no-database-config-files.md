@@ -74,9 +74,9 @@ Do not enable this rule in a project that owns a Prisma or Drizzle schema. This 
 
 ## Limitations
 
-The rule only runs on files **ESLint already lints**. Spreading `configs.recommended` registers a stub processor for Prisma schemas, SQLite files, Prisma migrations, and Compose YAML so those filenames are included. `drizzle.config.ts` is ordinary TypeScript and is linted without a processor.
+The rule only runs on files **ESLint already lints**. Spreading `configs["recommended-sidecars"]` registers a stub processor for Prisma schemas, SQLite files, Prisma migrations, and Compose YAML so those filenames are included. `drizzle.config.ts` is ordinary TypeScript and is linted by `configs.recommended` without a processor.
 
-If you enable this rule without recommended, add the sidecar globs yourself and set `processor` to `gigaslop/stub`.
+If you enable this rule without `recommended-sidecars`, add the sidecar globs yourself and set `processor` to `gigaslop/stub`.
 
 ## Related Rules
 

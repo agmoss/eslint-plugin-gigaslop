@@ -15,7 +15,7 @@ Covered syntax:
 - dynamic `import('…')` with a string literal
 - `require('…')` and `require.resolve('…')` with a string literal
 - TypeScript `import x = require('…')`
-- dependency names in `package.json` when the recommended processor is enabled
+- dependency names in `package.json` when `configs["recommended-sidecars"]` (or the `packagejson` processor) is enabled — the file is stubbed to `;` and this rule reads the JSON from disk, so other plugins do not see fake `require()` calls
 
 Relative (`./`, `../`), absolute (`/`), and `~` specifiers are ignored. Runtime prefixes `node:`, `bun:`, `npm:`, and `jsr:` are stripped before matching, so `node:sqlite` is treated as `sqlite`.
 
@@ -127,7 +127,7 @@ Do not enable this rule in a project whose data layer **is** one of the listed p
 ## Limitations
 
 - Dynamic specifiers (`import(variable)`, `require(name)`) are not checked.
-- `package.json` is only checked when the recommended config (or the `packagejson` processor) is enabled. Adding a dependency still requires ESLint to lint that file.
+- `package.json` is only checked when `configs["recommended-sidecars"]` (or the `packagejson` processor) is enabled. Adding a dependency still requires ESLint to lint that file.
 - Cloudflare D1 and similar binding-only APIs have no import to flag.
 
 ## Related Rules

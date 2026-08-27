@@ -86,6 +86,7 @@ interface AgentDbBlocklistPlugin {
   processors: typeof processors;
   configs: {
     recommended: FlatConfig[];
+    'recommended-sidecars': FlatConfig[];
     'recommended-legacy': {
       plugins: string[];
       rules: Record<string, string>;
@@ -100,12 +101,13 @@ interface AgentDbBlocklistPlugin {
 const plugin: AgentDbBlocklistPlugin = {
   meta: {
     name: 'eslint-plugin-gigaslop',
-    version: '0.2.0',
+    version: '0.3.0',
   },
   rules,
   processors,
   configs: {
     recommended: [],
+    'recommended-sidecars': [],
     'recommended-legacy': {
       plugins: [PLUGIN_NAME],
       rules: recommendedRuleSettings,
@@ -129,8 +131,11 @@ plugin.configs.recommended = [
     plugins: { [PLUGIN_NAME]: plugin },
     rules: recommendedRuleSettings,
   },
+];
+
+plugin.configs['recommended-sidecars'] = [
   {
-    name: `${PLUGIN_NAME}/recommended/sidecar-files`,
+    name: `${PLUGIN_NAME}/recommended-sidecars/sidecar-files`,
     files: SIDECAR_FILES,
     plugins: { [PLUGIN_NAME]: plugin },
     processor: stubProcessor,
@@ -140,7 +145,7 @@ plugin.configs.recommended = [
     },
   },
   {
-    name: `${PLUGIN_NAME}/recommended/package-json`,
+    name: `${PLUGIN_NAME}/recommended-sidecars/package-json`,
     files: ['**/package.json'],
     plugins: { [PLUGIN_NAME]: plugin },
     processor: packageJsonProcessor,
