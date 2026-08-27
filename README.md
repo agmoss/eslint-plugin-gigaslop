@@ -7,11 +7,11 @@ etc. as a shortcut instead of calling the existing API layer.
 
 ## Why?
 
-In large enterprise apps, there is often a dedicated API/data layer serving CRUD functionality of the frontend(s). Agents love ignoring this in favor of their own creations. Often, this manifests itself as direct database access for CRUD as well as schema modifications and migrations. This additional data layer is a dangerous liability.
+In large enterprise apps, there is often a dedicated API/data layer serving the CRUD functionality of the frontend(s). Agents love ignoring this in favor of their own creations. This manifests itself as direct database access for CRUD as well as schema modifications and migrations. Clearly a massive liability.
 
-Agents default to “put a database client in the frontend app” because that is how most tutorials and starters are written. It is also the simplest way to achieve the goal of the prompt. It is challenging to get an agent to prioritize organizational structure over a brute-force quick win.
+Agents default to “put a database client in the frontend app” because that is how most tutorials and starters are written. It is also the simplest way to achieve the goal of the prompt. It is challenging to get an agent to __consistently__ prioritize organizational structure over a brute-force quick win.
 
-This is not a matter of syntactical preference or design philosophy. In a data-intensive, API-driven app, circumventing the dedicated API layer is a fundamental flaw that, if introduced, is both painful and immediately necessary to unwind.
+This is not a matter of syntactical preference or design philosophy. In a data-intensive, API-driven app, circumventing the dedicated API layer is a __fundamental flaw__ that, if introduced, is __both painful and immediately necessary to unwind__.
 
 This ESlint plugin aims to thwart the introduction of this pattern. It includes rules to find common agent (or human tbh) inclusions of database access outside the approved API layer. When used with a pre-build or pre-commit hook, it can block this pattern before it reaches production.
 
@@ -19,7 +19,7 @@ This is particularly useful when the front end outcomes are driven by product te
 
 ## Why this?
 
-I tend to favor the philosophy of "compiler driven development", where via strong typing, you let the compiler identify contract incongruency and raise runtime errors. I see linting in the same light. It is deterministic and when used strictly, it can provide an "invisible hand" to guide the software development process in the "correct", agreed upon architecture, no matter how hard an agent or human tries to fight it.
+I tend to favor the philosophy of *"compiler driven development"*, where via strong typing, you let the compiler identify contract incongruency and raise runtime errors. I see linting in the same light. It is deterministic, and when used strictly, it can provide an *"invisible hand"* to guide the software development process in the "correct", agreed upon architecture, no matter how hard an agent or human tries to fight it.
 
 ## Why not just markdown?
 
@@ -40,11 +40,11 @@ Do not add DATABASE_URL, prisma/schema.prisma, or drizzle.config.ts.
 Do not create a new database layer in this client side app.
 ```
 
-I have found that this and other architectural non-negotiables are valuable to include in your `agents.md` file. However, these are just guides. They can be prompted over and ignored. Linting is **structural** and unopinionated, its results are deterministic and cause error codes.
+in your `agents.md` or equivalent file. I have found that this and other architectural non-negotiables are valuable inclusions. However, these are just guides. They __can be prompted over and ignored__. Linting is __structural__, __enforcable__, and __unopinionated__. Its results are deterministic and raise error codes.
 
 ## Downsides
 
-Yes, you or an agent can just uninstall this package or use lint ignores to ignore the rules. There is no surefire way around that. IMO when using this package you must remain diligent to scan for that. Again, IMO, this is easier to scan for than scanning for the numerous ways a new API layer can get introduced into your app.
+Yes, you or an agent can just uninstall this package or use lint ignores to ignore the rules. There is no surefire way around that. IMO when using this package you must remain diligent to scan for that. Again, IMO, this is easier to "manually" scan for than scanning for the numerous ways a new API layer can get introduced into your app.
 
 You could use this package outside the agent context. That, or use a system/script outside of the agent context that enforces its proper use.
 
@@ -66,9 +66,9 @@ export default [
 ];
 ```
 
-**Next.js / React:** spread **only** `recommended`. ESLint 9 applies a later unscoped `{ rules: { "react-hooks/…": "warn" } }` object to every file any config `files` glob added; `eslint-config-next` only defines `react-hooks` for JS/TS.
+__Next.js / React:__ spread __only__ `recommended`. ESLint 9 applies a later unscoped `{ rules: { "react-hooks/…": "warn" } }` object to every file any config `files` glob added; `eslint-config-next` only defines `react-hooks` for JS/TS.
 
-`recommended` is a JS/TS overlay: it does not add Prisma, SQLite, Compose, `data/**/*.json`, or `package.json` to the lint set. **0.3.0 breaking change:** 0.2.0 did add those sidecar globs, which crashed Next-style configs that override `react-hooks/*` without a `files` glob.
+`recommended` is a JS/TS overlay: it does not add Prisma, SQLite, Compose, `data/**/*.json`, or `package.json` to the lint set. __0.3.0 breaking change:__ 0.2.0 did add those sidecar globs, which crashed Next-style configs that override `react-hooks/*` without a `files` glob.
 
 To also lint sidecar files and `package.json` dependencies:
 
@@ -100,15 +100,15 @@ Spread `recommended-sidecars` only if every plugin-namespaced rule override is s
 | [`gigaslop/no-database-config-files`](docs/rules/no-database-config-files.md) | `"error"`   | Schema/config/sidecar files: Prisma, Drizzle config, `*.sqlite`, `prisma/migrations`, Compose YAML.                     |
 | [`gigaslop/no-baas-http`](docs/rules/no-baas-http.md)                         | `"error"`   | `fetch`/URL strings to Supabase, Neon, Upstash, and other database HTTP APIs.                                           |
 | [`gigaslop/no-raw-sql`](docs/rules/no-raw-sql.md)                             | `"error"`   | `sql\`...\``tags and strings that look like`SELECT … FROM`/`INSERT INTO` / …                                            |
-| [`gigaslop/no-http-servers`](docs/rules/no-http-servers.md)                   | `"error"`   | Express, Fastify, Hono, Nest, Apollo Server, graphql-yoga, … — a second backend. Turn off if this repo _is_ the server. |
+| [`gigaslop/no-http-servers`](docs/rules/no-http-servers.md)                   | `"error"`   | Express, Fastify, Hono, Nest, Apollo Server, graphql-yoga, … — a second backend. Turn off if this repo *is* the server. |
 | [`gigaslop/no-disable-gigaslop`](docs/rules/no-disable-gigaslop.md)           | `"error"`   | `eslint-disable` comments that mention `gigaslop/…`.                                                                    |
 | [`gigaslop/no-fs-datastore`](docs/rules/no-fs-datastore.md)                   | `"error"`   | File-backed stores: lowdb/Level/NeDB, `writeFile('data/*.json')`, `db.json`, `*.db`.                                    |
 | [`gigaslop/no-raw-database-apis`](docs/rules/no-raw-database-apis.md)         | opt-in      | `new Pool()` / `new Client()` / `createClient()` by identifier (noisy).                                                 |
 
-`no-raw-database-apis` is **not** in `recommended`. Identifier matching is too noisy for
+`no-raw-database-apis` is __not__ in `recommended`. Identifier matching is too noisy for
 `new Client()` / `createClient()` in typical apps.
 
-If this repository **is** the HTTP API, turn off `gigaslop/no-http-servers` (or `allow` the framework).
+If this repository __is__ the HTTP API, turn off `gigaslop/no-http-servers` (or `allow` the framework).
 
 Because the blocklist rules apply to every file, they also cover "putting database code in
 `app/api/*` just this once" and "generating a new backend inside Next.js instead of calling
@@ -270,7 +270,7 @@ Published to npm as [`eslint-plugin-gigaslop`](https://www.npmjs.com/package/esl
 
 Follow [semver](https://semver.org/)
 
-Bump **both** of these — they are not wired together:
+Bump __both__ of these — they are not wired together:
 
 - `"version"` in `package.json`
 - `plugin.meta.version` in `src/index.ts`
