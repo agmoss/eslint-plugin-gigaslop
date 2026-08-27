@@ -100,7 +100,7 @@ interface AgentDbBlocklistPlugin {
 const plugin: AgentDbBlocklistPlugin = {
   meta: {
     name: 'eslint-plugin-gigaslop',
-    version: '0.1.1',
+    version: '0.2.0',
   },
   rules,
   processors,
