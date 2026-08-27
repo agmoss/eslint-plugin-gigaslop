@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-gigaslop",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "ESLint plugin that aims to prevent gigaslop (large, fundamentally disastarous level of slop)",
   "keywords": [
     "eslint",
