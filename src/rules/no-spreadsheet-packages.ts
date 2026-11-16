@@ -1,5 +1,5 @@
 import type { TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 import {
   ALL_SPREADSHEET_CATEGORY_IDS,
   SPREADSHEET_CATEGORIES,
@@ -14,7 +14,7 @@ import { specifierListeners } from '../utils/specifierListeners';
 
 type CategoryId = SpreadsheetCategoryDefinition['id'];
 
-export interface Options {
+export interface Options extends PathOptions {
   /** Packages to exempt, e.g. when CSV/Excel import-export is an approved feature. */
   allow?: string[];
   /** Extra packages/wildcards to block beyond the built-in list. */
@@ -42,6 +42,11 @@ export const noSpreadsheetPackages = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           allow: {
             type: 'array',
             items: { type: 'string' },

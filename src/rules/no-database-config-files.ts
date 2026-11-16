@@ -1,7 +1,7 @@
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 import { DEFAULT_CONFIG_FILE_PATTERNS } from '../utils/blocklist';
 
-export interface Options {
+export interface Options extends PathOptions {
   /** Extra regex source strings (matched against the normalized file path) to flag. */
   patterns?: string[];
 }
@@ -25,6 +25,11 @@ export const noDatabaseConfigFiles = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           patterns: { type: 'array', items: { type: 'string' } },
         },
         additionalProperties: false,

@@ -1,8 +1,8 @@
 import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 import { DEFAULT_SQL_PATTERN } from '../utils/blocklist';
 
-export interface Options {
+export interface Options extends PathOptions {
   /** Extra identifier names treated as SQL tagged-template tags (`sql`, `SQL`, …). */
   additionalTags?: string[];
   /** Set false to skip untagged string literals / templates. Tagged `sql\`...\`` is still flagged. */
@@ -54,6 +54,11 @@ export const noRawSql = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           additionalTags: {
             type: 'array',
             items: { type: 'string' },

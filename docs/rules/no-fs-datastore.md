@@ -59,6 +59,8 @@ fetch('/api/widgets');
 
 ## Options
 
+This rule also accepts [`allowedPaths`](../../README.md#allowedpaths-all-rules) to exempt individual files by exact path.
+
 ```jsonc
 {
   "gigaslop/no-fs-datastore": ["error", {

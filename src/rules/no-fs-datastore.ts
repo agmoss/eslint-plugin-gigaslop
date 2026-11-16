@@ -1,5 +1,5 @@
 import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 import {
   DEFAULT_FS_DATASTORE_FILE_PATTERNS,
   DEFAULT_FS_DATASTORE_WRITE_EXTRA_PATTERNS,
@@ -12,7 +12,7 @@ import {
 import { attachPackageJsonDependencyCheck } from '../utils/packageJson';
 import { specifierListeners } from '../utils/specifierListeners';
 
-export interface Options {
+export interface Options extends PathOptions {
   allow?: string[];
   additionalBlocked?: string[];
   /** Extra regex source strings matched against the linted filename and fs write paths. */
@@ -150,6 +150,11 @@ export const noFsDatastore = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           allow: {
             type: 'array',
             items: { type: 'string' },

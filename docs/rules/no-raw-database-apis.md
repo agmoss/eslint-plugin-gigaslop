@@ -56,6 +56,8 @@ fetch('/api/widgets').then((res) => res.json());
 
 ## Options
 
+This rule also accepts [`allowedPaths`](../../README.md#allowedpaths-all-rules) to exempt individual files by exact path.
+
 ```jsonc
 {
   "gigaslop/no-raw-database-apis": [

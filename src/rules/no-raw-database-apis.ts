@@ -1,7 +1,7 @@
 import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 
-export interface Options {
+export interface Options extends PathOptions {
   /** Extra identifier names to treat as `new X(...)` database constructors. */
   additionalConstructors?: string[];
   /** Extra identifier/method names to treat as `x(...)` / `obj.x(...)` database factory calls. */
@@ -41,6 +41,11 @@ export const noRawDatabaseApis = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           additionalConstructors: {
             type: 'array',
             items: { type: 'string' },

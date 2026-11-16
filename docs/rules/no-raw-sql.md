@@ -35,6 +35,8 @@ const cls = 'truncate text-sm font-medium';
 
 ## Options
 
+This rule also accepts [`allowedPaths`](../../README.md#allowedpaths-all-rules) to exempt individual files by exact path.
+
 ```jsonc
 {
   "gigaslop/no-raw-sql": ["error", {

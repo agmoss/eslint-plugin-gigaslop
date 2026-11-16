@@ -114,10 +114,41 @@ If this repository __is__ the HTTP API, turn off `gigaslop/no-http-servers` (or 
 
 Because the blocklist rules apply to every file, they also cover "putting database code in
 `app/api/*` just this once" and "generating a new backend inside Next.js instead of calling
-existing APIs" — there's no path exemption, so a blocked import/pattern is flagged the same
-way whether it's in `app/api/route.ts`, a server action, or anywhere else.
+existing APIs". By default, a blocked import/pattern is flagged the same way whether
+it is in `app/api/route.ts`, a server action, or anywhere else. Use `allowedPaths`
+to explicitly exempt approved files for individual rules.
 
 ## Options
+
+### `allowedPaths` (all rules)
+
+Every rule accepts an `allowedPaths` array to skip that rule in approved files:
+
+```js
+// eslint.config.js
+import gigaslop from "eslint-plugin-gigaslop";
+
+export default [
+  ...gigaslop.configs.recommended,
+  {
+    rules: {
+      "gigaslop/no-database-packages": ["error", {
+        allowedPaths: ["src/api/database.js", "scripts/migrate.js"],
+      }],
+    },
+  },
+];
+```
+
+Entries match individual file paths exactly, resolved relative to ESLint's working
+directory (`cwd`), not the config file. Absolute paths also work. Both `/` and `\`
+separators are accepted. Directory entries do not exempt their contents, and glob
+patterns are not supported.
+
+Only the configured rule is skipped; other rules continue to run. The default is
+`[]` (no exemptions). For processed sidecar files and `package.json`, matching uses
+the original physical file path. The same option works in legacy rule settings and
+can be combined with each rule's other options.
 
 ### `no-database-packages`
 

@@ -1,4 +1,4 @@
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 import {
   ALL_CATEGORY_IDS,
   PACKAGE_CATEGORIES,
@@ -14,7 +14,7 @@ import type { TSESTree } from '@typescript-eslint/utils';
 
 type CategoryId = PackageCategoryDefinition['id'];
 
-export interface Options {
+export interface Options extends PathOptions {
   /** Packages to exempt, e.g. when one of them *is* the official data layer for this project. */
   allow?: string[];
   /** Extra packages/wildcards to block beyond the built-in list. */
@@ -42,6 +42,11 @@ export const noDatabasePackages = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           allow: {
             type: 'array',
             items: { type: 'string' },

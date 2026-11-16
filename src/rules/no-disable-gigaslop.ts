@@ -1,6 +1,6 @@
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 
-export interface Options {
+export interface Options extends PathOptions {
   /**
    * Also flag `eslint-disable` / `eslint-disable-next-line` / `eslint-disable-line`
    * with no rule list (those turn off every rule, including this plugin).
@@ -48,6 +48,11 @@ export const noDisableGigaslop = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           banUnqualifiedDisable: { type: 'boolean' },
         },
         additionalProperties: false,

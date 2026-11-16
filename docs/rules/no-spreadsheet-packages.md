@@ -54,6 +54,8 @@ fetch("/api/reports/export");
 
 ## Options
 
+This rule also accepts [`allowedPaths`](../../README.md#allowedpaths-all-rules) to exempt individual files by exact path.
+
 ```jsonc
 {
   "gigaslop/no-spreadsheet-packages": [

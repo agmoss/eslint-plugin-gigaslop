@@ -1,5 +1,5 @@
 import type { TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 import {
   ALL_SERVER_CATEGORY_IDS,
   SERVER_CATEGORIES,
@@ -14,7 +14,7 @@ import { specifierListeners } from '../utils/specifierListeners';
 
 type CategoryId = ServerCategoryDefinition['id'];
 
-export interface Options {
+export interface Options extends PathOptions {
   allow?: string[];
   additionalBlocked?: string[];
   /** Restrict to `"http"` and/or `"graphql"` (default: both). */
@@ -40,6 +40,11 @@ export const noHttpServers = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           allow: {
             type: 'array',
             items: { type: 'string' },

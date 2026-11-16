@@ -33,6 +33,8 @@ fetch('https://api.example.com/v1/widgets');
 
 ## Options
 
+This rule also accepts [`allowedPaths`](../../README.md#allowedpaths-all-rules) to exempt individual files by exact path.
+
 ```jsonc
 {
   "gigaslop/no-baas-http": ["error", {

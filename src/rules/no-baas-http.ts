@@ -1,8 +1,8 @@
 import { type TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 import { DEFAULT_BAAS_HTTP_HOSTS } from '../utils/blocklist';
 
-export interface Options {
+export interface Options extends PathOptions {
   /** Extra hostnames to treat as BaaS/database HTTP APIs. */
   additionalHosts?: string[];
   /** Hostnames to allow even if they match the built-in list. */
@@ -54,6 +54,11 @@ export const noBaasHttp = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           additionalHosts: {
             type: 'array',
             items: { type: 'string' },

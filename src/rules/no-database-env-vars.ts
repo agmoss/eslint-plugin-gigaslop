@@ -1,12 +1,12 @@
 import { AST_NODE_TYPES, type TSESTree } from '@typescript-eslint/utils';
-import { createRule } from '../utils/createRule';
+import { createRule, type PathOptions } from '../utils/createRule';
 import {
   DEFAULT_BLOCKED_ENV_VARS,
   DEFAULT_CONNECTION_STRING_PATTERN,
   DEFAULT_ENV_VAR_PATTERN,
 } from '../utils/blocklist';
 
-export interface Options {
+export interface Options extends PathOptions {
   /** Exact env var names to block, beyond the defaults. */
   envVars?: string[];
   /** Extra regex source(s) matched against env var names. */
@@ -85,6 +85,11 @@ export const noDatabaseEnvVars = createRule<RuleOptions, MessageIds>({
       {
         type: 'object',
         properties: {
+          allowedPaths: {
+            type: 'array',
+            items: { type: 'string', minLength: 1 },
+            uniqueItems: true,
+          },
           envVars: {
             type: 'array',
             items: { type: 'string' },
