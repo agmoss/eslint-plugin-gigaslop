@@ -2,8 +2,9 @@
 
 `gigaslop` (noun) A large, fundamentally disastrous level of slop.
 
-For the case where AI coding agents reach for `pg`/`prisma`/`@supabase/supabase-js`
-etc. as a shortcut instead of calling the existing API layer.
+For the case where AI coding agents reach for `pg`/`prisma`/`@supabase/supabase-js`,
+or CSV/Excel libraries like `papaparse`/`xlsx`/`exceljs`, as a shortcut instead of
+calling the existing API layer.
 
 ## Why?
 
@@ -103,6 +104,7 @@ Spread `recommended-sidecars` only if every plugin-namespaced rule override is s
 | [`gigaslop/no-http-servers`](docs/rules/no-http-servers.md)                   | `"error"`   | Express, Fastify, Hono, Nest, Apollo Server, graphql-yoga, … — a second backend. Turn off if this repo *is* the server. |
 | [`gigaslop/no-disable-gigaslop`](docs/rules/no-disable-gigaslop.md)           | `"error"`   | `eslint-disable` comments that mention `gigaslop/…`.                                                                    |
 | [`gigaslop/no-fs-datastore`](docs/rules/no-fs-datastore.md)                   | `"error"`   | File-backed stores: lowdb/Level/NeDB, `writeFile('data/*.json')`, `db.json`, `*.db`.                                    |
+| [`gigaslop/no-spreadsheet-packages`](docs/rules/no-spreadsheet-packages.md)   | `"error"`   | CSV and Excel libraries: papaparse, csv-parse, xlsx, exceljs, Handsontable. `allow` if export is approved.              |
 | [`gigaslop/no-raw-database-apis`](docs/rules/no-raw-database-apis.md)         | opt-in      | `new Pool()` / `new Client()` / `createClient()` by identifier (noisy).                                                 |
 
 `no-raw-database-apis` is __not__ in `recommended`. Identifier matching is too noisy for
@@ -230,6 +232,21 @@ Not in `recommended`. Opt in when you want identifier-based matching on top of t
     "error",
     {
       "banUnqualifiedDisable": false,
+    },
+  ],
+}
+```
+
+### `no-spreadsheet-packages`
+
+```jsonc
+{
+  "gigaslop/no-spreadsheet-packages": [
+    "error",
+    {
+      "allow": ["papaparse"],
+      "additionalBlocked": ["my-internal-xlsx"],
+      "categories": ["csv", "excel"],
     },
   ],
 }

@@ -260,3 +260,94 @@ export const DEFAULT_FS_DATASTORE_FILE_PATTERNS: readonly string[] = [
 export const DEFAULT_FS_DATASTORE_WRITE_EXTRA_PATTERNS: readonly string[] = [
   '\\.sqlite3?$',
 ];
+
+export interface SpreadsheetCategoryDefinition {
+  id: 'csv' | 'excel';
+  label: string;
+  packages: readonly string[];
+}
+
+/**
+ * CSV parsers/writers and Excel/spreadsheet libraries agents install to
+ * import, export, or embed tabular data instead of calling the project API.
+ */
+export const SPREADSHEET_CATEGORIES: readonly SpreadsheetCategoryDefinition[] =
+  [
+    {
+      id: 'csv',
+      label: 'CSV library',
+      packages: [
+        'papaparse',
+        'react-papaparse',
+        'babyparse',
+        'csv',
+        'csv-parse',
+        'csv-stringify',
+        'csv-generate',
+        'csv-parser',
+        'csv-writer',
+        'csvtojson',
+        'csv2json',
+        'csv-string',
+        'csv-load-sync',
+        'fast-csv',
+        '@fast-csv/*',
+        'neat-csv',
+        'json2csv',
+        '@json2csv/*',
+        'json-2-csv',
+        'd3-dsv',
+        'objects-to-csv',
+        'export-to-csv',
+        'react-csv',
+        'jquery-csv',
+        'comma-separated-values',
+      ],
+    },
+    {
+      id: 'excel',
+      label: 'Excel / spreadsheet library',
+      packages: [
+        'xlsx',
+        'xlsx-js-style',
+        'xlsx-style',
+        'sheetjs',
+        'sheetjs-style',
+        '@e965/xlsx',
+        'exceljs',
+        'node-xlsx',
+        'xlsx-populate',
+        'excel4node',
+        'write-excel-file',
+        'read-excel-file',
+        'convert-excel-to-json',
+        'excel-as-json',
+        'node-excel-export',
+        'excel-export',
+        'json-as-xlsx',
+        'xlsx-template',
+        'xlsx-import',
+        'better-xlsx',
+        'zipcelx',
+        'xlsx-writestream',
+        'xlsx-calc',
+        'xls',
+        'handsontable',
+        '@handsontable/*',
+        'hyperformula',
+        'jspreadsheet-ce',
+        '@jspreadsheet-ce/*',
+        'jexcel',
+        'luckysheet',
+        'luckyexcel',
+        '@fortune-sheet/*',
+        '@univerjs/sheets*',
+        '@univerjs/preset-sheets*',
+        'react-export-excel',
+        'react-excel-renderer',
+      ],
+    },
+  ];
+
+export const ALL_SPREADSHEET_CATEGORY_IDS: readonly SpreadsheetCategoryDefinition['id'][] =
+  SPREADSHEET_CATEGORIES.map((category) => category.id);

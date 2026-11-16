@@ -191,6 +191,10 @@ test('recommended-sidecars flags prisma, sqlite, JSON stores, and package.json d
     `expected no-fs-datastore on package.json, got ${JSON.stringify(pkg.messages)}`,
   );
   assert.ok(
+    ruleIds(pkg).includes('gigaslop/no-spreadsheet-packages'),
+    `expected no-spreadsheet-packages on package.json, got ${JSON.stringify(pkg.messages)}`,
+  );
+  assert.ok(
     !ruleIds(pkg).includes('@typescript-eslint/no-require-imports'),
     `package.json processor must not emit require() for other plugins to lint, got ${JSON.stringify(pkg.messages)}`,
   );

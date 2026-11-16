@@ -107,6 +107,24 @@ test('recommended-sidecars flags sidecar JSON stores', async () => {
   );
 });
 
+test('recommended flags CSV and spreadsheet libraries', async () => {
+  const papa = await lint('src/export.js', "import Papa from 'papaparse';\n");
+  assert.ok(
+    papa.messages.some(
+      (message) => message.ruleId === 'gigaslop/no-spreadsheet-packages',
+    ),
+    `expected no-spreadsheet-packages on papaparse, got ${JSON.stringify(papa.messages)}`,
+  );
+
+  const xlsx = await lint('src/sheet.js', "import * as XLSX from 'xlsx';\n");
+  assert.ok(
+    xlsx.messages.some(
+      (message) => message.ruleId === 'gigaslop/no-spreadsheet-packages',
+    ),
+    `expected no-spreadsheet-packages on xlsx, got ${JSON.stringify(xlsx.messages)}`,
+  );
+});
+
 test('recommended flags BaaS HTTP, raw SQL, HTTP servers, and gigaslop disables', async () => {
   const supabase = await lint(
     'src/client.js',

@@ -7,6 +7,7 @@ import { noRawSql } from './rules/no-raw-sql';
 import { noHttpServers } from './rules/no-http-servers';
 import { noDisableGigaslop } from './rules/no-disable-gigaslop';
 import { noFsDatastore } from './rules/no-fs-datastore';
+import { noSpreadsheetPackages } from './rules/no-spreadsheet-packages';
 import { packageJsonProcessor, stubProcessor } from './processors';
 
 const PLUGIN_NAME = 'gigaslop';
@@ -21,6 +22,7 @@ const rules = {
   'no-http-servers': noHttpServers,
   'no-disable-gigaslop': noDisableGigaslop,
   'no-fs-datastore': noFsDatastore,
+  'no-spreadsheet-packages': noSpreadsheetPackages,
 };
 
 const processors = {
@@ -39,6 +41,7 @@ const recommendedRuleSettings: Record<string, 'error'> = {
   [`${PLUGIN_NAME}/no-http-servers`]: 'error',
   [`${PLUGIN_NAME}/no-disable-gigaslop`]: 'error',
   [`${PLUGIN_NAME}/no-fs-datastore`]: 'error',
+  [`${PLUGIN_NAME}/no-spreadsheet-packages`]: 'error',
 };
 
 const SIDECAR_FILES = [
@@ -101,7 +104,7 @@ interface AgentDbBlocklistPlugin {
 const plugin: AgentDbBlocklistPlugin = {
   meta: {
     name: 'eslint-plugin-gigaslop',
-    version: '0.4.0',
+    version: '0.5.0',
   },
   rules,
   processors,
@@ -153,6 +156,7 @@ plugin.configs['recommended-sidecars'] = [
       [`${PLUGIN_NAME}/no-database-packages`]: 'error',
       [`${PLUGIN_NAME}/no-http-servers`]: 'error',
       [`${PLUGIN_NAME}/no-fs-datastore`]: 'error',
+      [`${PLUGIN_NAME}/no-spreadsheet-packages`]: 'error',
     },
   },
 ];
